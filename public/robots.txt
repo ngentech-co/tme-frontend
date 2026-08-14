@@ -1,0 +1,46 @@
+User-agent: *
+Allow: /
+Allow: /use-cases/
+Allow: /compare/
+Allow: /learn/
+Allow: /blog/
+Allow: /explore
+Allow: /topics/
+Allow: /public/
+
+Disallow: /seal
+Disallow: /seal/
+Disallow: /inbox
+Disallow: /inbox/
+Disallow: /auth
+Disallow: /auth/
+Disallow: /onboarding
+Disallow: /onboarding/
+Disallow: /claim
+Disallow: /api/
+Disallow: /r
+
+# Sitemaps
+Sitemap: https://ure.one/sitemap.xml
+
+# AI crawlers — allow with attribution
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Disallow: /
