@@ -1,8 +1,11 @@
 'use client';
 
 /**
- * Comments on unlocked capsules. Email-tier feature, local for the demo.
+ * Comments on unlocked capsules. Email-tier feature.
+ * Online → Supabase `comments` table; offline → localStorage.
  */
+
+import { backendOnline } from './backend';
 
 export interface CapsuleComment {
   id: string;
@@ -27,6 +30,16 @@ export function listComments(capsuleId: string): CapsuleComment[] {
   }
 }
 
+export async function listCommentsAsync(capsuleId: string): Promise<CapsuleComment[]> {
+  if (backendOnline()) {
+    const { listCommentsOnline } = await import('@/lib/storage/social-supabase');
+    const remote = await listCommentsOnline(capsuleId);
+    localStorage.setItem(KEY_PREFIX + capsuleId, JSON.stringify(remote));
+    return remote;
+  }
+  return listComments(capsuleId);
+}
+
 export function addComment(
   capsuleId: string,
   authorId: string,
@@ -44,10 +57,20 @@ export function addComment(
   const all = listComments(capsuleId);
   all.push(comment);
   localStorage.setItem(KEY_PREFIX + capsuleId, JSON.stringify(all));
+  if (backendOnline()) {
+    import('@/lib/storage/social-supabase')
+      .then(({ addCommentOnline }) => addCommentOnline(capsuleId, authorId, body))
+      .catch(() => {});
+  }
   return comment;
 }
 
 export function deleteComment(capsuleId: string, commentId: string): void {
   const all = listComments(capsuleId).filter((c) => c.id !== commentId);
   localStorage.setItem(KEY_PREFIX + capsuleId, JSON.stringify(all));
+  if (backendOnline()) {
+    import('@/lib/storage/social-supabase')
+      .then(({ deleteCommentOnline }) => deleteCommentOnline(commentId))
+      .catch(() => {});
+  }
 }

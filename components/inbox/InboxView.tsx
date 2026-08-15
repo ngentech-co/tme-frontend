@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import {
   estimateStorageUsed,
-  listCapsules,
+  listCapsulesAsync,
   storageQuotaBytes,
   type CapsuleListItem,
 } from '@/lib/storage/capsules';
@@ -23,7 +23,7 @@ export default function InboxView() {
 
   useEffect(() => {
     if (!user) return;
-    setCapsules(listCapsules(user.id));
+    listCapsulesAsync(user.id).then(setCapsules);
     estimateStorageUsed(user.id).then(setStorageUsed);
   }, [user]);
 

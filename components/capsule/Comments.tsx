@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import {
   addComment,
   deleteComment,
-  listComments,
+  listCommentsAsync,
   type CapsuleComment,
 } from '@/lib/comments';
 import { useAuth } from '@/lib/auth-context';
@@ -22,7 +22,7 @@ export default function Comments({ capsuleId }: Props) {
   const allowComment = user?.tier === 'email';
 
   useEffect(() => {
-    setComments(listComments(capsuleId));
+    listCommentsAsync(capsuleId).then(setComments);
   }, [capsuleId]);
 
   const submit = (e: React.FormEvent) => {
@@ -40,12 +40,12 @@ export default function Comments({ capsuleId }: Props) {
       body
     );
     setBody('');
-    setComments(listComments(capsuleId));
+    listCommentsAsync(capsuleId).then(setComments);
   };
 
   const onDelete = (id: string) => {
     deleteComment(capsuleId, id);
-    setComments(listComments(capsuleId));
+    listCommentsAsync(capsuleId).then(setComments);
   };
 
   return (

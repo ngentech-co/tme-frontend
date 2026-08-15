@@ -1,11 +1,11 @@
 'use client';
 
 /**
- * Email-tier followers. Local for the demo (structured for Supabase sync).
- *
- * Follow is user↔user. In a real deployment follows are records in a
- * `follows` table; here they persist to localStorage keyed by follower id.
+ * Email-tier followers.
+ * Online → Supabase `follows` table; offline → localStorage.
  */
+
+import { backendOnline } from './backend';
 
 const FOLLOW_KEY = 'tm:follows:';
 const FOLLOWING_KEY_PREFIX = 'tm:following:';
@@ -60,6 +60,53 @@ export function unfollowUser(userId: string, targetId: string): void {
   const following = listFollowing(userId).filter((f) => f.targetId !== targetId);
   localStorage.setItem(FOLLOWING_KEY_PREFIX + userId, JSON.stringify(following));
   bumpFollowerCount(userId, targetId, -1);
+  if (backendOnline()) {
+    import('@/lib/storage/social-supabase')
+      .then(({ unfollowOnline }) => unfollowOnline(userId, targetId))
+      .catch(() => {});
+  }
+}
+
+// --- online-aware helpers (used by FollowButton) ---
+
+export async function followAsync(
+  userId: string,
+  targetId: string,
+  targetName: string
+): Promise<FollowRelation> {
+  const rel = followUser(userId, targetId, targetName);
+  if (backendOnline()) {
+    await import('@/lib/storage/social-supabase')
+      .then(({ followOnline }) => followOnline(userId, targetId))
+      .catch(() => {});
+  }
+  return rel;
+}
+
+export async function unfollowAsync(userId: string, targetId: string): Promise<void> {
+  unfollowUser(userId, targetId);
+  if (backendOnline()) {
+    await import('@/lib/storage/social-supabase')
+      .then(({ unfollowOnline }) => unfollowOnline(userId, targetId))
+      .catch(() => {});
+  }
+}
+
+export async function isFollowingAsync(userId: string, targetId: string): Promise<boolean> {
+  if (backendOnline()) {
+    const { isFollowingOnline } = await import('@/lib/storage/social-supabase');
+    const on = await isFollowingOnline(userId, targetId);
+    if (on) return true;
+  }
+  return isFollowing(userId, targetId);
+}
+
+export async function followerCountAsync(targetId: string): Promise<number> {
+  if (backendOnline()) {
+    const { followerCountOnline } = await import('@/lib/storage/social-supabase');
+    return followerCountOnline(targetId);
+  }
+  return getFollowerCount(targetId);
 }
 
 // --- follower counts (per target) ---

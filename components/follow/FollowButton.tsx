@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  followUser,
-  unfollowUser,
-  isFollowing,
-  getFollowerCount,
+  followAsync,
+  unfollowAsync,
+  isFollowingAsync,
+  followerCountAsync,
 } from '@/lib/follows';
 
 interface Props {
@@ -15,21 +15,24 @@ interface Props {
 }
 
 export default function FollowButton({ userId, targetId, targetName }: Props) {
-  const [following, setFollowing] = useState(() =>
-    typeof window === 'undefined' ? false : isFollowing(userId, targetId)
-  );
-  const [count, setCount] = useState(() => getFollowerCount(targetId));
+  const [following, setFollowing] = useState(false);
+  const [count, setCount] = useState(0);
   const [busy, setBusy] = useState(false);
 
-  const toggle = () => {
+  useEffect(() => {
+    isFollowingAsync(userId, targetId).then(setFollowing);
+    followerCountAsync(targetId).then(setCount);
+  }, [userId, targetId]);
+
+  const toggle = async () => {
     if (busy) return;
     setBusy(true);
     if (following) {
-      unfollowUser(userId, targetId);
+      await unfollowAsync(userId, targetId);
       setFollowing(false);
       setCount((c) => Math.max(0, c - 1));
     } else {
-      followUser(userId, targetId, targetName);
+      await followAsync(userId, targetId, targetName);
       setFollowing(true);
       setCount((c) => c + 1);
     }
@@ -40,6 +43,7 @@ export default function FollowButton({ userId, targetId, targetName }: Props) {
     <div className="flex items-center gap-3">
       <button
         onClick={toggle}
+        disabled={busy}
         className={`text-sm py-2 px-5 rounded-full border transition-colors ${
           following
             ? 'border-border-subtle text-ink-muted'

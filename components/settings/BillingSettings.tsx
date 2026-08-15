@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import {
   estimateStorageUsed,
-  listCapsules,
+  listCapsulesAsync,
   storageQuotaBytes,
   type CapsuleListItem,
 } from '@/lib/storage/capsules';
@@ -19,7 +19,7 @@ export default function BillingSettings() {
   useEffect(() => {
     if (!user) return;
     estimateStorageUsed(user.id).then(setUsed);
-    setCapsules(listCapsules(user.id));
+    listCapsulesAsync(user.id).then(setCapsules);
   }, [user]);
 
   const quota = storageQuotaBytes();

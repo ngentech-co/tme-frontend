@@ -97,7 +97,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               tier,
               email: data.session.user.email ?? null,
             });
+            // Ensure the profile row exists for Supabase-backed storage.
+            try {
+              const { ensureUserProfile } = await import('@/lib/backend');
+              await ensureUserProfile({
+                id: data.session.user.id,
+                email: data.session.user.email,
+                tier,
+              });
+            } catch {
+              /* best-effort */
+            }
           }
+          // React to auth changes (magic-link confirm, sign-out elsewhere).
+          const { data: sub } = sb.auth.onAuthStateChange((_event, session) => {
+            if (session?.user) {
+              const tier = (localStorage.getItem(STORAGE.tierKey) as TierId) || 'email';
+              setUser({
+                id: session.user.id,
+                tier,
+                email: session.user.email ?? null,
+              });
+            } else if (!localStorage.getItem(STORAGE.userIdKey)) {
+              setUser(null);
+            }
+          });
+          return () => sub.subscription.unsubscribe();
         }
       }
       await refresh();

@@ -13,12 +13,12 @@ import {
   isStellarConfigured,
   type StellarAnchor,
 } from '@/lib/stellar/anchor';
-import { listAudit, type AuditEntry } from '@/lib/audit';
+import { backendListAudit } from '@/lib/backend';
 
 export default function LegalSettings() {
   const { user } = useAuth();
   const [anchors, setAnchors] = useState<StellarAnchor[]>([]);
-  const [audit, setAudit] = useState<AuditEntry[]>([]);
+  const [audit, setAudit] = useState<import('@/lib/audit').AuditEntry[]>([]);
   const [secretInput, setSecretInput] = useState('');
   const [configured, setConfigured] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -26,7 +26,7 @@ export default function LegalSettings() {
   useEffect(() => {
     if (!user) return;
     setAnchors(listAnchorsForUser(user.id));
-    setAudit(listAudit(user.id));
+    backendListAudit(user.id).then(setAudit);
     setConfigured(isStellarConfigured());
   }, [user]);
 

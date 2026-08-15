@@ -71,7 +71,15 @@ export function isIndexedDBAvailable(): boolean {
 }
 
 /**
+ * Storage path for an asset inside the capsule-blobs bucket.
+ */
+export function storagePath(userId: string, capsuleId: string, assetId: string): string {
+  return `${userId}/${capsuleId}/${assetId}`;
+}
+
+/**
  * Store an encrypted media blob for an asset.
+ * Online → Supabase Storage (capsule-blobs bucket). Offline → IndexedDB.
  */
 export async function putEncryptedMedia(
   userId: string,
@@ -79,6 +87,18 @@ export async function putEncryptedMedia(
   assetId: string,
   blob: Blob
 ): Promise<void> {
+  const { getSupabase } = await import('@/lib/backend');
+  const sb = getSupabase();
+  if (sb) {
+    const { error } = await sb.storage
+      .from('capsule-blobs')
+      .upload(storagePath(userId, capsuleId, assetId), blob, {
+        contentType: 'application/octet-stream',
+        upsert: true,
+      });
+    if (!error) return;
+    // fall through to IndexedDB on failure
+  }
   const t = await tx('readwrite');
   await new Promise<void>((resolve, reject) => {
     const req = t.store.put(blob, key(userId, capsuleId, assetId));
@@ -90,12 +110,22 @@ export async function putEncryptedMedia(
 
 /**
  * Retrieve an encrypted media blob.
+ * Online → Supabase Storage. Offline → IndexedDB.
  */
 export async function getEncryptedMedia(
   userId: string,
   capsuleId: string,
   assetId: string
 ): Promise<Blob | null> {
+  const { getSupabase } = await import('@/lib/backend');
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb.storage
+      .from('capsule-blobs')
+      .download(storagePath(userId, capsuleId, assetId));
+    if (!error && data) return data;
+    // fall through to IndexedDB
+  }
   const t = await tx('readonly');
   const blob = await new Promise<Blob | null>((resolve, reject) => {
     const req = t.store.get(key(userId, capsuleId, assetId));
@@ -107,11 +137,24 @@ export async function getEncryptedMedia(
 
 /**
  * Delete all media for a capsule.
+ * Online → remove bucket folder. Offline → IndexedDB range delete.
  */
 export async function deleteCapsuleMedia(
   userId: string,
   capsuleId: string
 ): Promise<void> {
+  const { getSupabase } = await import('@/lib/backend');
+  const sb = getSupabase();
+  if (sb) {
+    const { data } = await sb.storage
+      .from('capsule-blobs')
+      .list(`${userId}/${capsuleId}`);
+    if (data && data.length > 0) {
+      await sb.storage
+        .from('capsule-blobs')
+        .remove(data.map((f) => `${userId}/${capsuleId}/${f.name}`));
+    }
+  }
   const t = await tx('readwrite');
   await new Promise<void>((resolve, reject) => {
     const range = IDBKeyRange.bound(

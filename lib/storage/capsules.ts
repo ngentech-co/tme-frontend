@@ -14,6 +14,7 @@ import {
 import { putEncryptedMedia, getEncryptedMedia, deleteCapsuleMedia } from '@/lib/storage/media';
 import { anchorCapsule, recordUnlockReceipt } from '@/lib/stellar/anchor';
 import { STORAGE } from '@/lib/constants';
+import { backendOnline } from '@/lib/backend';
 
 const CAPSULES_KEY_PREFIX = 'tm:capsules:';
 
@@ -40,6 +41,10 @@ function capsuleKey(userId: string): string {
   return `${CAPSULES_KEY_PREFIX}${userId}`;
 }
 
+/**
+ * Read from the local cache. When online, hydrate the cache from Supabase
+ * first (call syncCapsules) so cross-device changes are reflected.
+ */
 export function listCapsules(userId: string): CapsuleListItem[] {
   if (typeof window === 'undefined') return [];
   const raw = localStorage.getItem(capsuleKey(userId));
@@ -50,6 +55,28 @@ export function listCapsules(userId: string): CapsuleListItem[] {
   } catch {
     return [];
   }
+}
+
+/**
+ * Online-aware list: hydrates the local cache from Supabase, returns merged.
+ * Falls back to the local cache when offline.
+ */
+export async function listCapsulesAsync(userId: string): Promise<CapsuleListItem[]> {
+  if (backendOnline()) {
+    const { listCapsulesOnline } = await import('@/lib/storage/capsules-supabase');
+    const remote = await listCapsulesOnline(userId);
+    // Seed the local cache (union by id) for fast reads + offline.
+    const local = listCapsules(userId);
+    const byId = new Map<string, CapsuleListItem>();
+    for (const c of remote) byId.set(c.id, c);
+    for (const c of local) if (!byId.has(c.id)) byId.set(c.id, c);
+    const merged = Array.from(byId.values()).sort((a, b) =>
+      b.createdAt.localeCompare(a.createdAt)
+    );
+    localStorage.setItem(capsuleKey(userId), JSON.stringify(merged));
+    return merged;
+  }
+  return listCapsules(userId);
 }
 
 export function readCapsule(userId: string, id: string): StoredCapsule | null {
@@ -63,8 +90,24 @@ export function readCapsule(userId: string, id: string): StoredCapsule | null {
   }
 }
 
+export async function readCapsuleAsync(userId: string, id: string): Promise<StoredCapsule | null> {
+  if (backendOnline()) {
+    const { readCapsuleOnline } = await import('@/lib/storage/capsules-supabase');
+    const remote = await readCapsuleOnline(userId, id);
+    if (remote) {
+      // Cache the remote detail locally for offline reads.
+      localStorage.setItem(`${CAPSULES_KEY_PREFIX}${userId}:detail:${id}`, JSON.stringify(remote));
+      return remote;
+    }
+  }
+  return readCapsule(userId, id);
+}
+
+/**
+ * Write to local cache AND (when online) upsert to Supabase.
+ */
 export function writeCapsule(userId: string, capsule: StoredCapsule): void {
-  // Update list
+  // Update local cache first (sync, so UI never blocks).
   const list = listCapsules(userId);
   const item: CapsuleListItem = {
     id: capsule.id,
@@ -84,6 +127,13 @@ export function writeCapsule(userId: string, capsule: StoredCapsule): void {
     `${CAPSULES_KEY_PREFIX}${userId}:detail:${capsule.id}`,
     JSON.stringify(capsule)
   );
+
+  // Fire-and-forget Supabase sync.
+  if (backendOnline()) {
+    import('@/lib/storage/capsules-supabase').then(({ writeCapsuleOnline }) =>
+      writeCapsuleOnline(capsule).catch(() => {})
+    );
+  }
 }
 
 export interface SealMediaInput {
@@ -177,8 +227,12 @@ export async function createCapsule(params: SealCapsuleParams): Promise<StoredCa
   }
 
   try {
-    const { logAudit } = await import('@/lib/audit');
-    logAudit(params.userId, 'capsule.sealed', `${stored.title} (${capsuleId.slice(0, 8)})`);
+    const { backendLogAudit } = await import('@/lib/backend');
+    await backendLogAudit(
+      params.userId,
+      'capsule.sealed',
+      `${stored.title} (${capsuleId.slice(0, 8)})`
+    );
   } catch {
     // best-effort
   }
@@ -217,6 +271,11 @@ export async function openCapsule(
   if (!sealed.openedAt) {
     sealed.openedAt = result.openedAt;
     writeCapsule(userId, sealed);
+    if (backendOnline()) {
+      import('@/lib/storage/capsules-supabase').then(({ markOpenedOnline }) =>
+        markOpenedOnline(capsuleId, result.openedAt).catch(() => {})
+      );
+    }
   }
 
   // Invisible Stellar unlock receipt (best-effort).
@@ -233,8 +292,8 @@ export async function openCapsule(
   }
 
   try {
-    const { logAudit } = await import('@/lib/audit');
-    logAudit(userId, 'capsule.opened', sealed.title);
+    const { backendLogAudit } = await import('@/lib/backend');
+    await backendLogAudit(userId, 'capsule.opened', sealed.title);
   } catch {
     // best-effort
   }
@@ -269,6 +328,11 @@ export async function deleteCapsule(userId: string, capsuleId: string): Promise<
   } catch {
     // ignore
   }
+  // Online: delete the capsule row too.
+  if (backendOnline()) {
+    const { deleteCapsuleOnline } = await import('@/lib/storage/capsules-supabase');
+    await deleteCapsuleOnline(capsuleId).catch(() => {});
+  }
 }
 
 export function updateCapsuleVisibility(
@@ -280,14 +344,32 @@ export function updateCapsuleVisibility(
   if (!sealed) return;
   sealed.visibility = visibility;
   writeCapsule(userId, sealed);
+  // Online: sync visibility change.
+  if (backendOnline()) {
+    import('@/lib/storage/capsules-supabase').then(({ updateVisibilityOnline }) =>
+      updateVisibilityOnline(capsuleId, visibility).catch(() => {})
+    );
+  }
 }
 
 /**
  * Storage usage estimate (bytes) for billing display.
- * Includes encrypted media stored in the IndexedDB vault.
+ * Online: sums capsule size_bytes from Supabase + bucket usage.
+ * Offline: local capsule sizes + IndexedDB media.
  */
 export async function estimateStorageUsed(userId: string): Promise<number> {
   if (typeof window === 'undefined') return 0;
+  if (backendOnline()) {
+    const { storageUsedOnline } = await import('@/lib/storage/capsules-supabase');
+    let total = await storageUsedOnline(userId);
+    try {
+      const { estimateMediaStorageUsed } = await import('@/lib/storage/media');
+      total += await estimateMediaStorageUsed(userId);
+    } catch {
+      // ignore
+    }
+    return total;
+  }
   const list = listCapsules(userId);
   let total = list.reduce((sum, c) => sum + (c.sizeBytes ?? 0), 0);
   try {

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import {
-  loadSettings,
+  loadSettingsAsync,
   saveSettings,
   DEFAULT_SETTINGS,
   type UserSettings,
@@ -11,7 +11,7 @@ import {
 
 /**
  * Load + save user settings. Returns the settings object and an updater that
- * persists on every change.
+ * persists on every change (local + Supabase when online).
  */
 export function useSettings() {
   const { user } = useAuth();
@@ -19,7 +19,7 @@ export function useSettings() {
 
   useEffect(() => {
     if (!user) return;
-    setSettings(loadSettings(user.id));
+    loadSettingsAsync(user.id).then(setSettings);
   }, [user]);
 
   const update = useCallback(

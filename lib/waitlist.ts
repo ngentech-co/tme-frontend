@@ -1,9 +1,11 @@
 'use client';
 
 /**
- * Premium waitlist. Local for the demo (structured for a real form backend
- * in production). Stores the email locally and flags the user as on the list.
+ * Premium waitlist.
+ * Online → Supabase `waitlist` table; offline → localStorage.
  */
+
+import { backendOnline } from './backend';
 
 const WAITLIST_KEY = 'tm:waitlist';
 
@@ -36,5 +38,13 @@ export function joinWaitlist(email: string, locale: string): WaitlistEntry {
     signedUpAt: new Date().toISOString(),
   };
   localStorage.setItem(WAITLIST_KEY, JSON.stringify(entry));
+  if (backendOnline()) {
+    import('@/lib/backend')
+      .then(({ getSupabase }) => {
+        const sb = getSupabase();
+        return sb?.from('waitlist').upsert({ email, locale });
+      })
+      .catch(() => {});
+  }
   return entry;
 }

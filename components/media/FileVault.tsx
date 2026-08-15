@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import {
-  listCapsules,
+  listCapsulesAsync,
   openCapsule,
   type CapsuleListItem,
 } from '@/lib/storage/capsules';
@@ -17,7 +17,7 @@ export default function FileVault() {
 
   useEffect(() => {
     if (!user) return;
-    setCapsules(listCapsules(user.id));
+    listCapsulesAsync(user.id).then(setCapsules);
   }, [user]);
 
   if (loading) {
@@ -51,7 +51,7 @@ export default function FileVault() {
     setError(null);
     try {
       await openCapsule(user.id, capsuleId);
-      setCapsules(listCapsules(user.id));
+      listCapsulesAsync(user.id).then(setCapsules);
     } catch (e) {
       setError((e as Error).message);
     } finally {

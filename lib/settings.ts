@@ -1,12 +1,9 @@
 'use client';
 
 /**
- * Persistent user settings. Stored in localStorage under a single key per
- * user (tm:settings:<userId>), so preferences survive reloads and follow the
- * account across the demo's local-device scope.
- *
- * In a production deployment these would sync to Supabase; the local store
- * is the offline/static-export equivalent.
+ * Persistent user settings.
+ * Online → Supabase `user_settings` (jsonb); offline → localStorage.
+ * The local cache (tm:settings:<userId>) is always kept so reads never block.
  */
 
 export interface UserSettings {
@@ -116,6 +113,46 @@ export function loadSettings(userId: string): UserSettings {
 
 export function saveSettings(userId: string, settings: UserSettings): void {
   localStorage.setItem(KEY_PREFIX + userId, JSON.stringify(settings));
+  if (typeof window !== 'undefined') {
+    import('./backend')
+      .then(({ getSupabase }) => {
+        const sb = getSupabase();
+        if (sb) {
+          sb.from('user_settings')
+            .upsert({ user_id: userId, settings: settings as unknown as Record<string, never> })
+            .then(() => {})
+            .catch(() => {});
+        }
+      })
+      .catch(() => {});
+  }
+}
+
+/**
+ * Online-aware load: pulls settings from Supabase when available, otherwise
+ * the local cache/default.
+ */
+export async function loadSettingsAsync(userId: string): Promise<UserSettings> {
+  if (typeof window === 'undefined') return { ...DEFAULT_SETTINGS };
+  try {
+    const { getSupabase } = await import('./backend');
+    const sb = getSupabase();
+    if (sb) {
+      const { data } = await sb
+        .from('user_settings')
+        .select('settings')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (data?.settings) {
+        const merged = { ...DEFAULT_SETTINGS, ...(data.settings as Partial<UserSettings>) };
+        localStorage.setItem(KEY_PREFIX + userId, JSON.stringify(merged));
+        return merged;
+      }
+    }
+  } catch {
+    // fall through to local
+  }
+  return loadSettings(userId);
 }
 
 /** Load settings for a user or the default shape (for non-signed-in use). */

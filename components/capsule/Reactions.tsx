@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { backendOnline } from '@/lib/backend';
+import { useAuth } from '@/lib/auth-context';
 
 /**
- * Reactions on unlocked capsules. Local-only for the demo (structured for
- * Supabase sync in a later phase). Email-tier users can react; private tiers
- * see counts only.
+ * Reactions on unlocked capsules.
+ * Online → Supabase `reactions` table; offline → localStorage.
  */
 
 const REACTIONS = ['✨', '❤️', '😭', '🤯', '🙌', '🕯️'];
@@ -18,22 +19,32 @@ interface Props {
 const KEY = 'tm:reactions:';
 
 export default function Reactions({ capsuleId, allowReact }: Props) {
+  const { user } = useAuth();
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [mine, setMine] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const raw = localStorage.getItem(KEY + capsuleId);
-    if (raw) {
-      try {
-        setCounts(JSON.parse(raw));
-      } catch {
-        /* ignore */
+    (async () => {
+      if (backendOnline()) {
+        const { listReactionsOnline } = await import('@/lib/storage/social-supabase');
+        const remote = await listReactionsOnline(capsuleId);
+        setCounts(remote);
+        localStorage.setItem(KEY + capsuleId, JSON.stringify(remote));
+        return;
       }
-    }
+      const raw = localStorage.getItem(KEY + capsuleId);
+      if (raw) {
+        try {
+          setCounts(JSON.parse(raw));
+        } catch {
+          /* ignore */
+        }
+      }
+    })();
   }, [capsuleId]);
 
   const react = (emoji: string) => {
-    if (!allowReact) return;
+    if (!allowReact || !user) return;
     const nextCounts = { ...counts, [emoji]: (counts[emoji] ?? 0) + 1 };
     const nextMine = { ...mine, [emoji]: !mine[emoji] };
     // Toggle off if already reacted
@@ -43,6 +54,12 @@ export default function Reactions({ capsuleId, allowReact }: Props) {
     setCounts(nextCounts);
     setMine(nextMine);
     localStorage.setItem(KEY + capsuleId, JSON.stringify(nextCounts));
+    if (backendOnline()) {
+      import('@/lib/storage/social-supabase').then((m) => {
+        if (mine[emoji]) m.removeReactionOnline(capsuleId, user.id, emoji);
+        else m.addReactionOnline(capsuleId, user.id, emoji);
+      }).catch(() => {});
+    }
   };
 
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
