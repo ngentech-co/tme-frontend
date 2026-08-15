@@ -118,10 +118,9 @@ export function saveSettings(userId: string, settings: UserSettings): void {
       .then(({ getSupabase }) => {
         const sb = getSupabase();
         if (sb) {
-          sb.from('user_settings')
-            .upsert({ user_id: userId, settings: settings as unknown as Record<string, never> })
-            .then(() => {})
-            .catch(() => {});
+          void Promise.resolve(
+            sb.from('user_settings').upsert({ user_id: userId, settings: settings as never })
+          ).catch(() => {});
         }
       })
       .catch(() => {});

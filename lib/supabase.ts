@@ -1,14 +1,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { Database } from './database.types';
 
 /**
  * Browser-side Supabase client. Used for auth + capsule metadata reads.
  * Static export: anon key is safe to ship; RLS protects writes.
+ * (Untyped client — database.types.ts is maintained for reference / codegen.)
  */
 
-let cachedClient: SupabaseClient<Database> | null = null;
+let cachedClient: SupabaseClient | null = null;
 
-export function getSupabase(): SupabaseClient<Database> | null {
+export function getSupabase(): SupabaseClient | null {
   if (cachedClient) return cachedClient;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -23,7 +23,7 @@ export function getSupabase(): SupabaseClient<Database> | null {
     return null;
   }
 
-  cachedClient = createClient<Database>(url, anonKey, {
+  cachedClient = createClient(url, anonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
