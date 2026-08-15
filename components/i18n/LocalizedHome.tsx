@@ -30,13 +30,13 @@ function LocalizedHeader() {
           <span className="font-display text-xl">{SITE.name}</span>
         </Link>
         <nav className="hidden md:flex items-center gap-8 body-sm">
-          <Link href={`/${locale}/how-it-works`} className="text-ink-muted hover:text-ink transition-colors">
+          <Link href="/how-it-works" className="text-ink-muted hover:text-ink transition-colors">
             {t.nav.howItWorks}
           </Link>
-          <Link href={`/${locale}/security`} className="text-ink-muted hover:text-ink transition-colors">
+          <Link href="/security" className="text-ink-muted hover:text-ink transition-colors">
             {t.nav.security}
           </Link>
-          <Link href={`/${locale}/faq`} className="text-ink-muted hover:text-ink transition-colors">
+          <Link href="/faq" className="text-ink-muted hover:text-ink transition-colors">
             {t.nav.faq}
           </Link>
         </nav>
@@ -68,7 +68,7 @@ function LocalizedHero() {
             <Link href={`/${locale}/seal`} className="btn-primary text-base">
               {t.home.sealCta}
             </Link>
-            <Link href={`/${locale}/how-it-works`} className="btn-link">
+            <Link href="/how-it-works" className="btn-link">
               {t.home.howLink}
             </Link>
           </div>

@@ -3,6 +3,7 @@ import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth-context';
 import AnalyticsProvider from '@/components/analytics/AnalyticsProvider';
 import ConsentBanner from '@/components/analytics/ConsentBanner';
+import { SITE } from '@/lib/constants';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -27,8 +28,8 @@ const jetbrains = JetBrains_Mono({
   weight: ['400', '500'],
 });
 
-const siteUrl = 'https://ure.one';
-const siteName = 'tomorrowme';
+const siteUrl = SITE.url;
+const siteName = SITE.name;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

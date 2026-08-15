@@ -44,10 +44,6 @@ export default function DataSettings() {
     }
   };
 
-  const importFutureMe = () => {
-    alert('FutureMe import is coming in Phase 2. Drop a CSV exported from FutureMe here.');
-  };
-
   const onDelete = async () => {
     if (!confirmDelete) return;
     setBusy('delete');
@@ -92,11 +88,10 @@ export default function DataSettings() {
         <div className="p-6 border border-border-subtle rounded-paper">
           <h3 className="heading-md mb-2">Import from another service</h3>
           <p className="body-sm text-ink-muted mb-4">
-            Drop a FutureMe, Capsule, or DayOne export to migrate.
+            Migrating FutureMe, Capsule, or DayOne exports is not yet supported.
+            Export to a decrypted bundle below and keep it safe — we'll add
+            import migration in a future release.
           </p>
-          <button onClick={importFutureMe} className="btn-link text-sm">
-            Coming soon →
-          </button>
         </div>
 
         <div className="p-6 border border-seal/30 bg-seal/5 rounded-paper">

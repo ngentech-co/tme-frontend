@@ -46,12 +46,12 @@ const FAQ_ITEMS = [
   {
     question: 'Can I collaborate with others on a capsule?',
     answer:
-      'Collaborative capsules are coming in Phase 4. For now, every capsule has a single author.',
+      'Yes. Collaborative capsules use k-of-n secret sharing: the owner invites co-authors, and the capsule opens only when enough members contribute their key-shares after the unlock date. Invites carry per-member codes shared out of band.',
   },
   {
     question: 'Do you support audio and video?',
     answer:
-      'Audio and video upload are planned for Phase 3. Today, the free tier supports text and images.',
+      'Yes. The free tier supports text, images, audio (with waveform previews), video, and any file type — all encrypted client-side before upload.',
   },
   {
     question: 'How do I delete my account?',

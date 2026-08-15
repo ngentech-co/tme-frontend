@@ -1,73 +1,57 @@
 'use client';
 
-import { useState } from 'react';
 import SettingsSection, { Field, Toggle } from './SettingsSection';
+import { useSettings } from '@/lib/use-settings';
 
 export default function NotificationsSettings() {
-  const [emailMaster, setEmailMaster] = useState(true);
-  const [t30, setT30] = useState(false);
-  const [t7, setT7] = useState(true);
-  const [t1, setT1] = useState(true);
-  const [t0, setT0] = useState(true);
-  const [digest, setDigest] = useState(false);
-  const [invites, setInvites] = useState(true);
-  const [reactions, setReactions] = useState(true);
-  const [product, setProduct] = useState(false);
-  const [push, setPush] = useState(false);
-  const [quietHours, setQuietHours] = useState(false);
+  const { settings: s, update } = useSettings();
 
   return (
     <SettingsSection
       title="Notifications"
-      description="What we tell you, and when."
+      description="What we tell you, and when. Changes save automatically."
     >
       <Field label="Email notifications" hint="Master switch for all email.">
-        <Toggle checked={emailMaster} onChange={setEmailMaster} />
+        <Toggle checked={s.emailMaster} onChange={(v) => update({ emailMaster: v })} />
       </Field>
 
       <Field label="T-30 days reminder">
-        <Toggle checked={t30} onChange={setT30} disabled={!emailMaster} />
+        <Toggle checked={s.t30} onChange={(v) => update({ t30: v })} disabled={!s.emailMaster} />
       </Field>
       <Field label="T-7 days reminder">
-        <Toggle checked={t7} onChange={setT7} disabled={!emailMaster} />
+        <Toggle checked={s.t7} onChange={(v) => update({ t7: v })} disabled={!s.emailMaster} />
       </Field>
       <Field label="T-1 day reminder">
-        <Toggle checked={t1} onChange={setT1} disabled={!emailMaster} />
+        <Toggle checked={s.t1} onChange={(v) => update({ t1: v })} disabled={!s.emailMaster} />
       </Field>
       <Field label="T+0 unlock notification">
-        <Toggle checked={t0} onChange={setT0} disabled={!emailMaster} />
+        <Toggle checked={s.t0} onChange={(v) => update({ t0: v })} disabled={!s.emailMaster} />
       </Field>
       <Field label="Weekly digest">
-        <Toggle checked={digest} onChange={setDigest} disabled={!emailMaster} />
+        <Toggle checked={s.digest} onChange={(v) => update({ digest: v })} disabled={!s.emailMaster} />
       </Field>
       <Field label="Co-author invitations" hint="When someone invites you to a shared capsule.">
-        <Toggle checked={invites} onChange={setInvites} disabled={!emailMaster} />
+        <Toggle checked={s.invites} onChange={(v) => update({ invites: v })} disabled={!s.emailMaster} />
       </Field>
       <Field label="Reactions & replies" hint="On unlocked public capsules.">
-        <Toggle checked={reactions} onChange={setReactions} disabled={!emailMaster} />
+        <Toggle checked={s.reactions} onChange={(v) => update({ reactions: v })} disabled={!s.emailMaster} />
       </Field>
       <Field label="Product updates" hint="Major releases only. No marketing.">
-        <Toggle checked={product} onChange={setProduct} disabled={!emailMaster} />
+        <Toggle checked={s.product} onChange={(v) => update({ product: v })} disabled={!s.emailMaster} />
       </Field>
 
       <Field label="Browser push notifications">
-        <Toggle checked={push} onChange={setPush} />
+        <Toggle checked={s.push} onChange={(v) => update({ push: v })} />
       </Field>
 
       <Field label="Quiet hours" hint="Mute notifications during a daily window.">
         <div className="flex items-center gap-3">
-          <Toggle checked={quietHours} onChange={setQuietHours} />
-          {quietHours && (
-            <span className="font-mono text-sm text-ink-muted">
-              22:00 → 08:00
-            </span>
-          )}
+          <Toggle checked={s.quietHours} onChange={(v) => update({ quietHours: v })} />
+          {s.quietHours && <span className="font-mono text-sm text-ink-muted">22:00 → 08:00</span>}
         </div>
       </Field>
 
-      <div className="mt-10 flex justify-end">
-        <button className="btn-primary text-sm py-2.5 px-6">Save</button>
-      </div>
+      <p className="mono text-ink-soft mt-8">saved automatically</p>
     </SettingsSection>
   );
 }

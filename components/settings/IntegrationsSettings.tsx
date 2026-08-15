@@ -15,7 +15,7 @@ export default function IntegrationsSettings() {
             Connect apps like Zapier, IFTTT, or Make to automate unlock reactions.
           </p>
           <button className="btn-ghost text-sm py-2 px-5" disabled>
-            Coming in Phase 3
+            Not available yet
           </button>
         </div>
 
@@ -25,7 +25,7 @@ export default function IntegrationsSettings() {
             Receive an HTTP POST when a capsule unlocks.
           </p>
           <button className="btn-ghost text-sm py-2 px-5" disabled>
-            Coming in Phase 3
+            Not available yet
           </button>
         </div>
 
@@ -35,7 +35,7 @@ export default function IntegrationsSettings() {
             Personal access tokens for the tomorrowme CLI and scripts.
           </p>
           <button className="btn-ghost text-sm py-2 px-5" disabled>
-            Coming in Phase 3
+            Not available yet
           </button>
         </div>
       </div>

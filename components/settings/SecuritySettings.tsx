@@ -1,22 +1,20 @@
 'use client';
 
-import { useState } from 'react';
 import SettingsSection, { Field, Toggle } from './SettingsSection';
 import TwoFactorSetup from './TwoFactorSetup';
 import { useAuth } from '@/lib/auth-context';
+import { useSettings } from '@/lib/use-settings';
 
 export default function SecuritySettings() {
   const { user } = useAuth();
-  const [anchoring, setAnchoring] = useState(true);
-  const [verificationDepth, setVerificationDepth] = useState('standard');
-  const [inactivityWipe, setInactivityWipe] = useState('never');
+  const { settings: s, update } = useSettings();
 
   const isEmailTier = user?.tier === 'email';
 
   return (
     <SettingsSection
       title="Security"
-      description="Two-factor auth, sessions, and cryptographic preferences."
+      description="Two-factor auth, sessions, and cryptographic preferences. Changes save automatically."
     >
       <Field
         label="Two-factor authentication"
@@ -32,17 +30,13 @@ export default function SecuritySettings() {
       </Field>
 
       <Field label="Active sessions" hint="Devices currently signed in.">
-        <button className="btn-ghost text-sm py-2 px-5">Manage sessions</button>
-      </Field>
-
-      <Field label="Login history" hint="Last 50 sign-ins.">
-        <button className="btn-link text-sm">View log</button>
+        <span className="mono text-xs text-ink-soft">this device</span>
       </Field>
 
       <Field label="Encryption preferences" hint="Standard depth is recommended.">
         <select
-          value={verificationDepth}
-          onChange={(e) => setVerificationDepth(e.target.value)}
+          value={s.verificationDepth}
+          onChange={(e) => update({ verificationDepth: e.target.value as 'standard' | 'paranoid' })}
           className="bg-cream border border-border-subtle rounded-paper px-4 py-2 body-sm"
         >
           <option value="standard">Standard</option>
@@ -54,7 +48,7 @@ export default function SecuritySettings() {
         label="Anchor seals on Stellar (invisible)"
         hint="Writes a tamper-proof timestamp to the Stellar ledger. No Stellar wallet needed."
       >
-        <Toggle checked={anchoring} onChange={setAnchoring} />
+        <Toggle checked={s.anchorOnStellar} onChange={(v) => update({ anchorOnStellar: v })} />
       </Field>
 
       <Field
@@ -62,8 +56,8 @@ export default function SecuritySettings() {
         hint="Delete account + all capsules after a period of inactivity."
       >
         <select
-          value={inactivityWipe}
-          onChange={(e) => setInactivityWipe(e.target.value)}
+          value={s.inactivityWipe}
+          onChange={(e) => update({ inactivityWipe: e.target.value as 'never' | '6m' | '1y' | '2y' })}
           className="bg-cream border border-border-subtle rounded-paper px-4 py-2 body-sm"
         >
           <option value="never">Never</option>
@@ -73,9 +67,7 @@ export default function SecuritySettings() {
         </select>
       </Field>
 
-      <div className="mt-10 flex justify-end">
-        <button className="btn-primary text-sm py-2.5 px-6">Save</button>
-      </div>
+      <p className="mono text-ink-soft mt-8">saved automatically</p>
     </SettingsSection>
   );
 }

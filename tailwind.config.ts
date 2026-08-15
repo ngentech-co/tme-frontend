@@ -10,31 +10,31 @@ const config: Config = {
     extend: {
       colors: {
         cream: {
-          DEFAULT: '#F8F4EC',
-          paper: '#FFFBF2',
-          deep: '#F2EBDA',
+          DEFAULT: 'rgb(var(--color-cream) / <alpha-value>)',
+          paper: 'rgb(var(--color-cream-paper) / <alpha-value>)',
+          deep: 'rgb(var(--color-cream-deep) / <alpha-value>)',
         },
         paper: {
-          DEFAULT: '#FFFBF2',
-          deep: '#F2EBDA',
+          DEFAULT: 'rgb(var(--color-paper) / <alpha-value>)',
+          deep: 'rgb(var(--color-paper-deep) / <alpha-value>)',
         },
         ink: {
-          DEFAULT: '#1A1814',
-          muted: '#5C5650',
-          soft: '#8A8378',
+          DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
+          muted: 'rgb(var(--color-ink-muted) / <alpha-value>)',
+          soft: 'rgb(var(--color-ink-soft) / <alpha-value>)',
         },
         seal: {
-          DEFAULT: '#B5392A',
-          deep: '#8E2A1F',
-          soft: '#D86858',
+          DEFAULT: 'rgb(var(--color-seal) / <alpha-value>)',
+          deep: 'rgb(var(--color-seal-deep) / <alpha-value>)',
+          soft: 'rgb(var(--color-seal-soft) / <alpha-value>)',
         },
         wax: {
-          gold: '#C9A961',
-          dark: '#9B7E3F',
+          gold: 'rgb(var(--color-wax) / <alpha-value>)',
+          dark: 'rgb(var(--color-wax-dark) / <alpha-value>)',
         },
         border: {
-          subtle: '#E8DFD0',
-          strong: '#D4C7B0',
+          subtle: 'rgb(var(--color-border-subtle) / <alpha-value>)',
+          strong: 'rgb(var(--color-border-strong) / <alpha-value>)',
         },
       },
       fontFamily: {

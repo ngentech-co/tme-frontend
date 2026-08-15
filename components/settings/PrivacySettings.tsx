@@ -1,33 +1,31 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import SettingsSection, { Field, Toggle } from './SettingsSection';
 import { useAuth } from '@/lib/auth-context';
+import { useSettings } from '@/lib/use-settings';
 import {
   acceptAnalytics,
   declineAnalytics,
   getStoredConsent,
   isAnalyticsConfigured,
 } from '@/lib/analytics';
+import { useEffect } from 'react';
 
 export default function PrivacySettings() {
   const { user } = useAuth();
-  const [searchIndex, setSearchIndex] = useState(true);
-  const [analytics, setAnalytics] = useState(false);
-  const [ipLog, setIpLog] = useState('hash');
-  const [improvement, setImprovement] = useState(false);
-  const [research, setResearch] = useState(false);
+  const { settings: s, update } = useSettings();
   const configured = isAnalyticsConfigured();
   const isPrivate = user?.tier === 'passkey' || user?.tier === 'anonymous';
 
+  // Sync the analytics toggle from stored consent.
   useEffect(() => {
     if (!configured) return;
-    const consent = getStoredConsent();
-    setAnalytics(consent.analytics_storage === 'granted');
+    update({ analytics: getStoredConsent().analytics_storage === 'granted' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configured]);
 
   const toggleAnalytics = (on: boolean) => {
-    setAnalytics(on);
+    update({ analytics: on });
     if (on) acceptAnalytics();
     else declineAnalytics();
   };
@@ -35,13 +33,13 @@ export default function PrivacySettings() {
   return (
     <SettingsSection
       title="Privacy"
-      description="Visibility, tracking, and data sharing."
+      description="Visibility, tracking, and data sharing. Changes save automatically."
     >
       <Field
         label="Allow search engines to index your public capsules"
         hint="Adds a noindex flag when off."
       >
-        <Toggle checked={searchIndex} onChange={setSearchIndex} />
+        <Toggle checked={s.searchIndex} onChange={(v) => update({ searchIndex: v })} />
       </Field>
 
       <Field
@@ -55,7 +53,7 @@ export default function PrivacySettings() {
         }
       >
         <Toggle
-          checked={analytics}
+          checked={s.analytics}
           onChange={toggleAnalytics}
           disabled={isPrivate || !configured}
         />
@@ -66,8 +64,8 @@ export default function PrivacySettings() {
         hint="Used only for spam prevention and region-based rate limits."
       >
         <select
-          value={ipLog}
-          onChange={(e) => setIpLog(e.target.value)}
+          value={s.ipLog}
+          onChange={(e) => update({ ipLog: e.target.value as 'hash' | 'none' | 'full' })}
           className="bg-cream border border-border-subtle rounded-paper px-4 py-2 body-sm"
         >
           <option value="hash">Anonymized-hash</option>
@@ -80,19 +78,17 @@ export default function PrivacySettings() {
         label="Allow product improvement studies"
         hint="Opt-in only. Never includes your content."
       >
-        <Toggle checked={improvement} onChange={setImprovement} />
+        <Toggle checked={s.improvement} onChange={(v) => update({ improvement: v })} />
       </Field>
 
       <Field
         label="Allow research partnerships"
         hint="Anonymized aggregate stats shared with academic researchers."
       >
-        <Toggle checked={research} onChange={setResearch} />
+        <Toggle checked={s.research} onChange={(v) => update({ research: v })} />
       </Field>
 
-      <div className="mt-10 flex justify-end">
-        <button className="btn-primary text-sm py-2.5 px-6">Save</button>
-      </div>
+      <p className="mono text-ink-soft mt-8">saved automatically</p>
     </SettingsSection>
   );
 }

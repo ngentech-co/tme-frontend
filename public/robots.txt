@@ -16,7 +16,6 @@ Disallow: /auth
 Disallow: /auth/
 Disallow: /onboarding
 Disallow: /onboarding/
-Disallow: /claim
 Disallow: /api/
 Disallow: /r
 Disallow: /invite
@@ -28,7 +27,7 @@ Disallow: /es/auth
 Disallow: /es/onboarding
 
 # Sitemaps
-Sitemap: https://ure.one/sitemap.xml
+Sitemap: https://tomorrowme.net/sitemap.xml
 
 # AI crawlers — allow with attribution
 User-agent: GPTBot

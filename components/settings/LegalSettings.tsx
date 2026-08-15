@@ -13,10 +13,12 @@ import {
   isStellarConfigured,
   type StellarAnchor,
 } from '@/lib/stellar/anchor';
+import { listAudit, type AuditEntry } from '@/lib/audit';
 
 export default function LegalSettings() {
   const { user } = useAuth();
   const [anchors, setAnchors] = useState<StellarAnchor[]>([]);
+  const [audit, setAudit] = useState<AuditEntry[]>([]);
   const [secretInput, setSecretInput] = useState('');
   const [configured, setConfigured] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -24,6 +26,7 @@ export default function LegalSettings() {
   useEffect(() => {
     if (!user) return;
     setAnchors(listAnchorsForUser(user.id));
+    setAudit(listAudit(user.id));
     setConfigured(isStellarConfigured());
   }, [user]);
 
@@ -152,11 +155,34 @@ export default function LegalSettings() {
         <div>
           <h3 className="heading-md mb-3">Audit trail</h3>
           <p className="body-sm text-ink-muted mb-3">
-            Every action on your account, with timestamps.
+            Recent actions on your account, with timestamps.
           </p>
-          <button className="btn-link text-sm">
-            View account log →
-          </button>
+          {audit.length === 0 ? (
+            <div className="bg-cream border border-border-subtle rounded-paper p-6 text-center">
+              <p className="body text-ink-soft">
+                No actions recorded yet. Seal or open a capsule to populate this log.
+              </p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-border-subtle">
+              {audit.map((e) => (
+                <li key={e.id} className="py-3 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-mono text-sm">{e.action}</p>
+                    {e.detail && (
+                      <p className="mono text-xs text-ink-soft truncate">{e.detail}</p>
+                    )}
+                  </div>
+                  <span className="mono text-xs text-ink-soft flex-shrink-0">
+                    {new Date(e.createdAt).toLocaleString('en-US', {
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </SettingsSection>

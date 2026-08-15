@@ -176,6 +176,13 @@ export async function createCapsule(params: SealCapsuleParams): Promise<StoredCa
     // anchoring is best-effort
   }
 
+  try {
+    const { logAudit } = await import('@/lib/audit');
+    logAudit(params.userId, 'capsule.sealed', `${stored.title} (${capsuleId.slice(0, 8)})`);
+  } catch {
+    // best-effort
+  }
+
   return stored;
 }
 
@@ -221,6 +228,13 @@ export async function openCapsule(
       drandRound: sealed.drandRound,
       unlockAt: new Date(sealed.unlockAt),
     });
+  } catch {
+    // best-effort
+  }
+
+  try {
+    const { logAudit } = await import('@/lib/audit');
+    logAudit(userId, 'capsule.opened', sealed.title);
   } catch {
     // best-effort
   }

@@ -29,8 +29,13 @@ const FEATURES = [
   },
   {
     title: 'Text + images',
-    body: 'Rich text editor for letters. Up to 5 images per capsule. Audio and video coming soon.',
+    body: 'Rich text editor for letters, plus up to 10 images per capsule.',
     icon: '🖼️',
+  },
+  {
+    title: 'Audio, video & files',
+    body: 'Seal songs, voice memos, films, or any file. Chunked encryption with waveforms and playback after unlock.',
+    icon: '🎬',
   },
   {
     title: 'Public capsules',

@@ -68,7 +68,7 @@ export default function AuthFlow() {
       setError(r.error ?? 'Could not start anonymous session.');
       return;
     }
-    router.push(`${prefix}/onboarding/recovery-key`);
+    router.push('/onboarding/recovery-key');
   };
 
   return (

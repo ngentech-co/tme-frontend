@@ -52,10 +52,13 @@ export default function PricingPage() {
           <h3 className="heading-lg mb-4">Premium — for serious time-capsulers</h3>
           <p className="body text-ink-muted mb-6">
             When (and if) we add a paid tier, it'll unlock longer durations,
-            larger media files, collaborative capsules, and Stellar-based proof
-            of unlock. You'll hear about it on the changelog first.
+            larger media files, collaboration at scale, and on-chain proof of
+            unlock. The free tier already includes collaboration and media —
+            Premium is for pushing further.
           </p>
-          <p className="mono text-ink-soft">not yet — but soon</p>
+          <Link href="/premium" className="btn-ghost text-sm py-2 px-5">
+            Join the waitlist →
+          </Link>
         </div>
 
         <div className="text-center mt-16">

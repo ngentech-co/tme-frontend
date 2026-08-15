@@ -5,13 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { createCapsule, type SealMediaInput } from '@/lib/storage/capsules';
-import { generateRecoveryKey } from '@/lib/recovery';
-import { STORAGE } from '@/lib/constants';
 import { trackEvent } from '@/lib/analytics';
 import MediaPicker, { formatBytes, type PendingMedia } from '@/components/media/MediaPicker';
 import { useI18n } from '@/lib/i18n';
 import { createCollaborativeCapsule, type CollaborativeSeal } from '@/lib/storage/collab';
-import { STORAGE as TM_STORAGE } from '@/lib/constants';
+import { STORAGE } from '@/lib/constants';
 
 type Step = 'compose' | 'date' | 'collab' | 'preview' | 'sealing' | 'done';
 
@@ -76,7 +74,7 @@ export default function SealWizard() {
     const replyTo = params.get('replyTo');
     const replyTitle = params.get('title');
     if (replyTo) {
-      localStorage.setItem(TM_STORAGE.draftPrefix + 'replyTo', replyTo);
+      localStorage.setItem(STORAGE.draftPrefix + 'replyTo', replyTo);
     }
     if (replyTitle) {
       setTitle(replyTitle.slice(0, 120));
@@ -141,7 +139,7 @@ export default function SealWizard() {
 
       if (isCollab) {
         const recoveryKey =
-          localStorage.getItem(TM_STORAGE.recoveryKeyLocal) ?? '';
+          localStorage.getItem(STORAGE.recoveryKeyLocal) ?? '';
         const result = await createCollaborativeCapsule({
           userId: user.id,
           ownerName: user.email?.split('@')[0] ?? user.id.slice(0, 6),

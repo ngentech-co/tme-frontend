@@ -1,23 +1,22 @@
 'use client';
 
-import { useState } from 'react';
 import SettingsSection, { Field } from './SettingsSection';
+import { useSettings } from '@/lib/use-settings';
 
 export default function CapsulesSettings() {
-  const [visibility, setVisibility] = useState('private');
-  const [unlockPreset, setUnlockPreset] = useState('6m');
-  const [sizeCap, setSizeCap] = useState('100');
-  const [chain, setChain] = useState('default');
+  const { settings, update } = useSettings();
 
   return (
     <SettingsSection
       title="Capsule defaults"
-      description="These apply to every new capsule you seal. You can override per-capsule."
+      description="These apply to every new capsule you seal. You can override per-capsule. Changes save automatically."
     >
       <Field label="Default visibility">
         <select
-          value={visibility}
-          onChange={(e) => setVisibility(e.target.value)}
+          value={settings.defaultVisibility}
+          onChange={(e) =>
+            update({ defaultVisibility: e.target.value as 'private' | 'unlisted' | 'public' })
+          }
           className="bg-cream border border-border-subtle rounded-paper px-4 py-2 body-sm"
         >
           <option value="private">Private</option>
@@ -28,8 +27,8 @@ export default function CapsulesSettings() {
 
       <Field label="Default unlock-date preset">
         <select
-          value={unlockPreset}
-          onChange={(e) => setUnlockPreset(e.target.value)}
+          value={settings.unlockPreset}
+          onChange={(e) => update({ unlockPreset: e.target.value })}
           className="bg-cream border border-border-subtle rounded-paper px-4 py-2 body-sm"
         >
           <option value="1m">1 month</option>
@@ -44,8 +43,8 @@ export default function CapsulesSettings() {
       <Field label="Max media size per capsule" hint="In MB. Hard cap for new uploads.">
         <input
           type="number"
-          value={sizeCap}
-          onChange={(e) => setSizeCap(e.target.value)}
+          value={settings.sizeCapMb}
+          onChange={(e) => update({ sizeCapMb: e.target.value })}
           min={1}
           max={500}
           className="bg-cream border border-border-subtle rounded-paper px-4 py-2 body-sm w-24 font-mono"
@@ -54,8 +53,8 @@ export default function CapsulesSettings() {
 
       <Field label="Time-lock chain" hint="Drand chain used for the time-lock primitive.">
         <select
-          value={chain}
-          onChange={(e) => setChain(e.target.value)}
+          value={settings.timeLockChain}
+          onChange={(e) => update({ timeLockChain: e.target.value })}
           className="bg-cream border border-border-subtle rounded-paper px-4 py-2 body-sm font-mono"
         >
           <option value="default">Drand default (1-minute rounds)</option>
@@ -63,9 +62,7 @@ export default function CapsulesSettings() {
         </select>
       </Field>
 
-      <div className="mt-10 flex justify-end">
-        <button className="btn-primary text-sm py-2.5 px-6">Save defaults</button>
-      </div>
+      <p className="mono text-ink-soft mt-8">saved automatically</p>
     </SettingsSection>
   );
 }

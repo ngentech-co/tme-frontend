@@ -65,6 +65,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     (async () => {
+      // Bootstrap saved appearance (theme, font size) before paint.
+      if (typeof window !== 'undefined') {
+        const raw = localStorage.getItem('tm:settings:' + localStorage.getItem(STORAGE.userIdKey));
+        if (raw) {
+          try {
+            const s = JSON.parse(raw) as { theme?: string; fontSize?: string };
+            const root = document.documentElement;
+            if (s.theme && s.theme !== 'system') {
+              root.setAttribute('data-theme', s.theme);
+              root.style.colorScheme = s.theme;
+            }
+            if (s.fontSize) {
+              root.style.fontSize =
+                s.fontSize === 'large' ? '112.5%' : s.fontSize === 'small' ? '93.75%' : '100%';
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+      }
       setLoading(true);
       if (online) {
         const sb = getSupabase();

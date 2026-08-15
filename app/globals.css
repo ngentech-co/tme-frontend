@@ -3,12 +3,25 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --color-cream: #f8f4ec;
-    --color-paper: #fffbf2;
-    --color-ink: #1a1814;
-    --color-seal: #b5392a;
-    --color-wax: #c9a961;
+  /* Palette is defined as RGB triplets consumed by Tailwind via
+     `rgb(var(--color-*) / <alpha-value>)`. Each theme overrides them. */
+  :root,
+  [data-theme='light'] {
+    --color-cream: 248 244 236; /* #F8F4EC */
+    --color-cream-paper: 255 251 242; /* #FFFBF2 */
+    --color-cream-deep: 242 235 218; /* #F2EBDA */
+    --color-paper: 255 251 242; /* #FFFBF2 */
+    --color-paper-deep: 242 235 218; /* #F2EBDA */
+    --color-ink: 26 24 20; /* #1A1814 */
+    --color-ink-muted: 92 86 80; /* #5C5650 */
+    --color-ink-soft: 138 131 120; /* #8A8378 */
+    --color-seal: 181 57 42; /* #B5392A */
+    --color-seal-deep: 142 42 31; /* #8E2A1F */
+    --color-seal-soft: 216 104 88; /* #D86858 */
+    --color-wax: 201 169 97; /* #C9A961 */
+    --color-wax-dark: 155 126 63; /* #9B7E3F */
+    --color-border-subtle: 232 223 208; /* #E8DFD0 */
+    --color-border-strong: 212 199 176; /* #D4C7B0 */
 
     --font-display: 'Fraunces', Georgia, serif;
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -16,6 +29,42 @@
 
     --section-y: 7rem;
     --section-y-lg: 9rem;
+  }
+
+  [data-theme='dark'] {
+    --color-cream: 24 22 20; /* deep ink */
+    --color-cream-paper: 31 29 26;
+    --color-cream-deep: 20 18 16;
+    --color-paper: 31 29 26;
+    --color-paper-deep: 20 18 16;
+    --color-ink: 244 240 232; /* near-cream text */
+    --color-ink-muted: 190 182 170;
+    --color-ink-soft: 150 142 130;
+    --color-seal: 216 104 88; /* lighter seal for contrast */
+    --color-seal-deep: 181 57 42;
+    --color-seal-soft: 216 104 88;
+    --color-wax: 201 169 97;
+    --color-wax-dark: 201 169 97;
+    --color-border-subtle: 51 48 44;
+    --color-border-strong: 71 66 60;
+  }
+
+  [data-theme='sepia'] {
+    --color-cream: 240 232 210;
+    --color-cream-paper: 247 240 222;
+    --color-cream-deep: 230 219 192;
+    --color-paper: 247 240 222;
+    --color-paper-deep: 230 219 192;
+    --color-ink: 66 51 36;
+    --color-ink-muted: 122 101 80;
+    --color-ink-soft: 160 140 116;
+    --color-seal: 163 66 46;
+    --color-seal-deep: 126 50 36;
+    --color-seal-soft: 196 92 66;
+    --color-wax: 190 158 96;
+    --color-wax-dark: 148 119 66;
+    --color-border-subtle: 220 207 178;
+    --color-border-strong: 200 184 150;
   }
 
   * {
@@ -59,6 +108,16 @@
   ::selection {
     background-color: rgba(181, 57, 42, 0.18);
     color: var(--color-ink);
+  }
+
+  /* Explicit "reduce motion" override for the Appearance setting. */
+  html.reduce-motion *,
+  html.reduce-motion *::before,
+  html.reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -116,7 +175,7 @@
   }
 
   .btn-primary:hover {
-    background-color: #a32f23;
+    background-color: rgb(var(--color-seal-deep));
     transform: translateY(-1px);
     box-shadow: 0 12px 32px rgba(181, 57, 42, 0.28);
   }
