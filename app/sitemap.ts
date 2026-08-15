@@ -3,6 +3,7 @@ import { SITE } from '@/lib/constants';
 import { BLOG_POSTS } from '@/lib/blog-posts';
 import { USE_CASES } from '@/components/seo/UseCaseTemplate';
 import { COMPARISONS } from '@/components/seo/ComparisonTemplate';
+import { TOPICS } from '@/lib/topics';
 
 const STATIC_PATHS = [
   '',
@@ -23,16 +24,16 @@ const STATIC_PATHS = [
   '/press',
   '/use-cases',
   '/compare',
+  '/learn',
+  '/topics',
+  '/explore',
 ];
 
 const LEARN = [
   'time-lock-encryption',
   'drand-network',
-  'digital-time-capsule-history',
-  'threshold-cryptography',
   'self-custody-keys-explained',
-  'why-encrypt-your-letters',
-  'grief-letters-to-yourself',
+  'digital-time-capsule-history',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -83,6 +84,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
+  const topicEntries: MetadataRoute.Sitemap = TOPICS.map((t) => ({
+    url: `${baseUrl}/topics/${t.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  }));
+
   return [
     ...staticEntries,
     ...useCaseEntries,
@@ -90,5 +98,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...learnEntries,
     ...blogIndex,
     ...blogEntries,
+    ...topicEntries,
   ];
 }

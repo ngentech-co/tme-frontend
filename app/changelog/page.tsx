@@ -7,6 +7,20 @@ export const metadata: Metadata = {
 
 const ENTRIES = [
   {
+    version: '0.6.0',
+    date: 'August 2026',
+    label: 'Phase 5 — Discovery & Polish',
+    items: [
+      'Explore page (/explore): public capsule gallery with search + topic filters',
+      'Topics system: /topics index + 12 SEO topic hub pages',
+      'Email-tier followers: follow/unfollow + follower counts + /people directory',
+      'Comments on unlocked capsules (email tier)',
+      'Educational cluster /learn/*: time-lock encryption, Drand, self-custody keys, history',
+      'Comparison expansion: 4 new pages (LetterStream, Day One, encrypted-vs-traditional, free-vs-paid)',
+      'SEO cross-linking pass across footer, sitemap, and topic hubs',
+    ],
+  },
+  {
     version: '0.5.0',
     date: 'August 2026',
     label: 'Phase 4 — Collaborative + Stellar',

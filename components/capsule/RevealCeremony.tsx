@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { MediaAssetMeta } from '@/lib/crypto/media';
 import MediaAssetRenderer from '@/components/media/MediaAssetRenderer';
 import Reactions from './Reactions';
+import Comments from './Comments';
 import { useAuth } from '@/lib/auth-context';
 
 interface Props {
@@ -103,6 +104,8 @@ export default function RevealCeremony({
             capsuleId={capsuleId ?? title}
             allowReact={allowReact}
           />
+
+          <Comments capsuleId={capsuleId ?? title} />
 
           <div
             className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-up"

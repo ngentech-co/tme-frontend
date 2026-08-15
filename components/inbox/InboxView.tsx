@@ -81,6 +81,9 @@ export default function InboxView() {
             <Link href="/vault" className="btn-ghost">
               File vault
             </Link>
+            <Link href="/people" className="btn-ghost">
+              People
+            </Link>
             <Link href="/inbox/collaborations" className="btn-ghost">
               Collaborations
             </Link>

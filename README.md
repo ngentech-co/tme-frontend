@@ -57,6 +57,16 @@ A privacy-first web app where users seal digital messages, secrets, letters, and
 - Reactions on unlocked capsules (email tier)
 - Collaborations page (`/inbox/collaborations`)
 
+**Phase 5 — Discovery & Polish** ✅
+
+- Explore page (`/explore`): public capsule gallery with search + topic filters
+- Topics system: `/topics` index + 12 SEO topic hub pages
+- Email-tier followers: follow/unfollow + follower counts + `/people` directory
+- Comments on unlocked capsules (email tier)
+- Educational cluster `/learn/*`: time-lock encryption, Drand, self-custody keys, history
+- Comparison expansion: 4 new pages (LetterStream, Day One, encrypted-vs-traditional, free-vs-paid)
+- SEO cross-linking pass (footer, sitemap, topic hubs)
+
 See `plans.md` for the full master plan.
 
 ## Stack

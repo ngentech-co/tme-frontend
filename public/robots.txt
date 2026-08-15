@@ -21,6 +21,7 @@ Disallow: /api/
 Disallow: /r
 Disallow: /invite
 Disallow: /vault
+Disallow: /people
 
 # Sitemaps
 Sitemap: https://ure.one/sitemap.xml

@@ -33,7 +33,7 @@ const PHASES = [
   },
   {
     name: 'Phase 5 — Discovery & Polish',
-    status: 'planned',
+    status: 'shipped',
     items: ['/explore + /topics/*', 'Public capsule discovery', 'Email followers (basic)', 'Educational cluster'],
   },
   {

@@ -234,8 +234,8 @@ function Footer() {
   return (
     <footer className="border-t border-border-subtle mt-12">
       <div className="container-page py-16">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
-          <div className="md:col-span-1">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
+          <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2.5 mb-4">
               <span className="seal-stamp w-9 h-9 text-base">tm</span>
               <span className="font-display text-xl">{SITE.name}</span>
@@ -263,12 +263,21 @@ function Footer() {
             </ul>
           </div>
           <div>
+            <h4 className="mono mb-4">Discover</h4>
+            <ul className="space-y-3 body-sm">
+              <li><Link href="/explore" className="text-ink-muted hover:text-ink">Explore</Link></li>
+              <li><Link href="/topics" className="text-ink-muted hover:text-ink">Topics</Link></li>
+              <li><Link href="/use-cases" className="text-ink-muted hover:text-ink">Use cases</Link></li>
+              <li><Link href="/compare" className="text-ink-muted hover:text-ink">Compare</Link></li>
+            </ul>
+          </div>
+          <div>
             <h4 className="mono mb-4">Learn</h4>
             <ul className="space-y-3 body-sm">
               <li><Link href="/how-it-works" className="text-ink-muted hover:text-ink">How it works</Link></li>
               <li><Link href="/learn/time-lock-encryption" className="text-ink-muted hover:text-ink">Time-lock encryption</Link></li>
+              <li><Link href="/learn/drand-network" className="text-ink-muted hover:text-ink">The Drand network</Link></li>
               <li><Link href="/blog" className="text-ink-muted hover:text-ink">Blog</Link></li>
-              <li><Link href="/contact" className="text-ink-muted hover:text-ink">Contact</Link></li>
             </ul>
           </div>
         </div>
