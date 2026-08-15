@@ -1,41 +1,44 @@
 'use client';
 
 import { useState } from 'react';
+import { enrollPasskey, getPasskeySupportInfo } from '@/lib/passkeys';
+import { useAuth } from '@/lib/auth-context';
 
 interface Props {
   onComplete: () => void;
   onBack: () => void;
 }
 
-/**
- * Phase 1 passkey setup is a placeholder that completes locally — Phase 2
- * wires the real WebAuthn flow with stored credentials.
- */
 export default function PasskeySetup({ onComplete, onBack }: Props) {
+  const { user } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<{ supported: boolean; message?: string }>(() =>
+    getPasskeySupportInfo()
+  );
 
   const enroll = async () => {
     setBusy(true);
     setError(null);
     try {
-      if (
-        typeof window === 'undefined' ||
-        !window.PublicKeyCredential ||
-        typeof navigator.credentials?.create !== 'function'
-      ) {
-        throw new Error('This browser does not support passkeys.');
+      if (!info.supported) {
+        throw new Error(info.message ?? 'WebAuthn is not available in this browser.');
       }
-      // Phase 2: real WebAuthn challenge. Phase 1: simulated.
-      await new Promise((r) => setTimeout(r, 600));
+      const userName =
+        user?.email ?? user?.displayName ?? `tm-user-${user?.id?.slice(0, 6) ?? 'anon'}`;
+      const userId = user?.id ?? 'passkey-user';
+      const record = await enrollPasskey({
+        userId,
+        userName,
+        name: 'Primary passkey',
+      });
+      if (!record) throw new Error('Passkey creation returned no credential.');
       localStorage.setItem('tm:tier', 'passkey');
-      localStorage.setItem(
-        'tm:user-id',
-        'passkey_' + Math.random().toString(36).slice(2, 10)
-      );
+      localStorage.setItem('tm:user-id', userId);
+      localStorage.setItem('tm:passkey-just-enrolled', 'true');
       onComplete();
     } catch (e) {
-      setError((e as Error).message);
+      setError((e as Error).message ?? 'Could not create passkey.');
     } finally {
       setBusy(false);
     }
@@ -57,16 +60,26 @@ export default function PasskeySetup({ onComplete, onBack }: Props) {
       <div className="card-paper p-8 sm:p-10 text-center">
         <span className="seal-stamp mx-auto mb-8 inline-flex">🔐</span>
         <p className="body text-ink-muted mb-8">
-          When you click below, your browser will prompt you to create a
-          passkey. This is the only sign-in we'll ever ask for.
+          When you click below, your browser or device will ask to create a
+          passkey. Approve it to continue.
         </p>
+
+        {!info.supported && (
+          <p className="mb-6 body-sm text-seal" role="alert">
+            {info.message ?? 'WebAuthn is not available in this browser. Try Chrome, Edge, or Safari.'}
+          </p>
+        )}
 
         {error && (
           <p className="mb-6 body-sm text-seal" role="alert">{error}</p>
         )}
 
-        <button onClick={enroll} disabled={busy} className="btn-primary w-full">
-          {busy ? 'Setting up…' : 'Enroll passkey'}
+        <button
+          onClick={enroll}
+          disabled={busy || !info.supported}
+          className="btn-primary w-full"
+        >
+          {busy ? 'Contacting your device…' : 'Enroll passkey'}
         </button>
         <button onClick={onBack} className="btn-link w-full justify-center mt-4">
           ← Back

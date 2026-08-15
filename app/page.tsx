@@ -64,6 +64,9 @@ function Header() {
           <Link href="/explore" className="hidden sm:inline-block btn-link body-sm">
             Explore
           </Link>
+          <Link href="/auth" className="hidden sm:inline-block btn-link body-sm">
+            Sign in
+          </Link>
           <Link href="/seal" className="btn-primary text-sm py-2.5 px-5">
             Seal a capsule
           </Link>

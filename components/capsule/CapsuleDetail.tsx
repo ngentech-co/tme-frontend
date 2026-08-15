@@ -12,6 +12,7 @@ import {
 } from '@/lib/storage/capsules';
 import CountdownInline from '@/components/capsule/CountdownInline';
 import RevealCeremony from '@/components/capsule/RevealCeremony';
+import { trackEvent } from '@/lib/analytics';
 
 export default function CapsuleDetail() {
   return (
@@ -55,6 +56,7 @@ function CapsuleDetailInner() {
     try {
       await new Promise((r) => setTimeout(r, 1200));
       const result = await openCapsule(user.id, capsule.id);
+      trackEvent('capsule_unlocked', { tier: user.tier, visibility: capsule.visibility });
       setOpenedText(result.text);
       setPhase('opened');
     } catch (e) {

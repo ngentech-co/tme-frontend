@@ -2,23 +2,33 @@
 
 import { useState } from 'react';
 import SettingsSection, { Field, Toggle } from './SettingsSection';
+import TwoFactorSetup from './TwoFactorSetup';
+import { useAuth } from '@/lib/auth-context';
 
 export default function SecuritySettings() {
-  const [twofa, setTwofa] = useState(false);
+  const { user } = useAuth();
   const [anchoring, setAnchoring] = useState(true);
   const [verificationDepth, setVerificationDepth] = useState('standard');
   const [inactivityWipe, setInactivityWipe] = useState('never');
+
+  const isEmailTier = user?.tier === 'email';
 
   return (
     <SettingsSection
       title="Security"
       description="Two-factor auth, sessions, and cryptographic preferences."
     >
-      <Field label="Two-factor authentication" hint="Email-tier accounts only. TOTP authenticator app.">
-        <div className="flex items-center gap-3">
-          <Toggle checked={twofa} onChange={setTwofa} />
-          {twofa && <button className="btn-link text-sm">View backup codes</button>}
-        </div>
+      <Field
+        label="Two-factor authentication"
+        hint={isEmailTier ? 'TOTP authenticator app. Email-tier accounts only.' : 'Email-tier accounts only.'}
+      >
+        {isEmailTier ? (
+          <div className="w-full max-w-2xl">
+            <TwoFactorSetup />
+          </div>
+        ) : (
+          <span className="mono text-xs text-ink-soft">email tier only</span>
+        )}
       </Field>
 
       <Field label="Active sessions" hint="Devices currently signed in.">

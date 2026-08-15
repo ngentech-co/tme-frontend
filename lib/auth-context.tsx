@@ -30,6 +30,7 @@ interface AuthContextValue {
   online: boolean;
   signInEmail: (email: string) => Promise<{ ok: boolean; error?: string }>;
   signInAnonymous: () => Promise<{ ok: boolean; error?: string; recoveryKey?: string }>;
+  signInPasskey: () => Promise<{ ok: boolean; error?: string; userId?: string }>;
   signOut: () => Promise<void>;
   switchTier: (tier: TierId) => Promise<{ ok: boolean; error?: string }>;
   refresh: () => Promise<void>;
@@ -127,6 +128,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { ok: true, recoveryKey };
   }, [refresh]);
 
+  const signInPasskey = useCallback(async (): Promise<{
+    ok: boolean;
+    error?: string;
+    userId?: string;
+  }> => {
+    if (typeof window === 'undefined') {
+      return { ok: false, error: 'Passkey sign-in requires a browser.' };
+    }
+
+    const { authenticatePasskey, listPasskeys } = await import('./passkeys');
+    const knownUsers = Object.keys(localStorage)
+      .filter((k) => k.startsWith('tm:passkeys:'))
+      .map((k) => k.replace('tm:passkeys:', ''));
+
+    if (knownUsers.length === 0) {
+      return { ok: false, error: 'No passkey account found on this device.' };
+    }
+
+    // Try each known user until one authenticates.
+    for (const userId of knownUsers) {
+      if (listPasskeys(userId).length === 0) continue;
+      try {
+        await authenticatePasskey({ userId });
+        localStorage.setItem(STORAGE.tierKey, 'passkey');
+        localStorage.setItem(STORAGE.userIdKey, userId);
+        await refresh();
+        return { ok: true, userId };
+      } catch {
+        // try the next account
+      }
+    }
+
+    return { ok: false, error: 'Passkey verification failed. Please try again.' };
+  }, [refresh]);
+
   const switchTier = useCallback(
     async (tier: TierId): Promise<{ ok: boolean; error?: string }> => {
       localStorage.setItem(STORAGE.tierKey, tier);
@@ -155,11 +191,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       online,
       signInEmail,
       signInAnonymous,
+      signInPasskey,
       switchTier,
       signOut,
       refresh,
     }),
-    [user, loading, online, signInEmail, signInAnonymous, switchTier, signOut, refresh]
+    [user, loading, online, signInEmail, signInAnonymous, signInPasskey, switchTier, signOut, refresh]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

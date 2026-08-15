@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { createCapsule } from '@/lib/storage/capsules';
 import { generateRecoveryKey } from '@/lib/recovery';
 import { STORAGE } from '@/lib/constants';
+import { trackEvent } from '@/lib/analytics';
 
 type Step = 'compose' | 'date' | 'preview' | 'sealing' | 'done';
 
@@ -62,7 +63,10 @@ export default function SealWizard() {
             <Link href="/onboarding" className="btn-primary">
               Start onboarding
             </Link>
-            <Link href="/" className="btn-ghost">
+            <Link href="/auth" className="btn-ghost">
+              I already have an account
+            </Link>
+            <Link href="/" className="btn-link">
               Back home
             </Link>
           </div>
@@ -98,6 +102,14 @@ export default function SealWizard() {
         unlockAt,
         visibility,
         coverColor: 'seal',
+      });
+      trackEvent('capsule_sealed', {
+        tier: user.tier,
+        visibility,
+        has_images: images.length > 0,
+        unlock_horizon_months: Math.round(
+          (unlockAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30)
+        ),
       });
       setSealedId(stored.id);
       setShareSlug(stored.shareSlug);

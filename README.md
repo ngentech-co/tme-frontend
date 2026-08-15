@@ -16,6 +16,25 @@ A privacy-first web app where users seal digital messages, secrets, letters, and
 - Branded error pages
 - Cream + seal-red palette, modern typography (Fraunces, Inter, JetBrains Mono)
 
+**Phase 1 — Core Ritual** ✅
+
+- Interactive 3-tier onboarding (anonymous / email / passkey)
+- Recovery-key force-download gate (file / clipboard / bookmark URL)
+- Capsule seal wizard (text + images + date + visibility)
+- Sealed capsule view with live countdown + reveal ceremony
+- Inbox dashboard + public share pages
+- Full settings suite (13 sections)
+- Marketing pages, 6 use-cases, 3 comparisons, blog + RSS
+
+**Phase 2 — Auth Expansion** ✅
+
+- Real WebAuthn passkeys (enroll, authenticate, verify ES256 assertions)
+- Passkey manager (list / add / rename / remove with lockout warning)
+- Full tier switcher with per-transition consequence modals
+- Google Analytics 4 with consent mode v2 (denied by default; locked off for private tiers)
+- TOTP two-factor authentication (Web Crypto, QR via `qrcode`)
+- `/auth` page with passkey + email + anonymous sign-in
+
 See `plans.md` for the full master plan.
 
 ## Stack

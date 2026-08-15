@@ -7,14 +7,16 @@ export const metadata: Metadata = {
 
 const ENTRIES = [
   {
-    version: '0.1.0',
+    version: '0.3.0',
     date: 'August 2026',
-    label: 'Phase 0 — Foundation',
+    label: 'Phase 2 — Auth Expansion',
     items: [
-      'Client-side AES-256 encryption pipeline',
-      'Drand time-lock primitive',
-      'BIP-39 recovery key + bookmark URL',
-      'Landing page, branded error pages, sitemap',
+      'Real WebAuthn passkeys (enroll, authenticate, verify)',
+      'Passkey manager with rename / remove / lockout warning',
+      'Full tier switcher with consequence modals',
+      'Google Analytics 4 with consent mode v2',
+      'TOTP two-factor authentication',
+      '/auth page with passkey + email + anonymous sign-in',
     ],
   },
   {
@@ -33,6 +35,17 @@ const ENTRIES = [
       'Marketing pages: about, how-it-works, security, privacy, terms, pricing, faq',
       'Programmatic SEO: 6 use-cases + 3 comparisons',
       'Blog system with MDX + RSS',
+    ],
+  },
+  {
+    version: '0.1.0',
+    date: 'August 2026',
+    label: 'Phase 0 — Foundation',
+    items: [
+      'Client-side AES-256 encryption pipeline',
+      'Drand time-lock primitive',
+      'BIP-39 recovery key + bookmark URL',
+      'Landing page, branded error pages, sitemap',
     ],
   },
 ];

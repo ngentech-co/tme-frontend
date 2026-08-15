@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth-context';
+import AnalyticsProvider from '@/components/analytics/AnalyticsProvider';
+import ConsentBanner from '@/components/analytics/ConsentBanner';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -138,7 +140,9 @@ export default function RootLayout({
           Skip to content
         </a>
         <div id="main" className="flex-1">
+          <AnalyticsProvider />
           <AuthProvider>{children}</AuthProvider>
+          <ConsentBanner />
         </div>
       </body>
     </html>

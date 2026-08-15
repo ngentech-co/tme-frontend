@@ -18,12 +18,12 @@ const PHASES = [
   },
   {
     name: 'Phase 2 — Auth Expansion',
-    status: 'next',
+    status: 'shipped',
     items: ['Real WebAuthn passkey flow', 'Tier switcher', 'Google Analytics 4', 'Two-factor authentication'],
   },
   {
     name: 'Phase 3 — Media Expansion',
-    status: 'planned',
+    status: 'next',
     items: ['Audio upload + waveforms', 'Video upload (chunked)', 'File vault', 'Storage quota UI'],
   },
   {

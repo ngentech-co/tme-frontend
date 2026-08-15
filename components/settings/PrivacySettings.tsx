@@ -1,14 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SettingsSection, { Field, Toggle } from './SettingsSection';
+import { useAuth } from '@/lib/auth-context';
+import {
+  acceptAnalytics,
+  declineAnalytics,
+  getStoredConsent,
+  isAnalyticsConfigured,
+} from '@/lib/analytics';
 
 export default function PrivacySettings() {
+  const { user } = useAuth();
   const [searchIndex, setSearchIndex] = useState(true);
   const [analytics, setAnalytics] = useState(false);
   const [ipLog, setIpLog] = useState('hash');
   const [improvement, setImprovement] = useState(false);
   const [research, setResearch] = useState(false);
+  const configured = isAnalyticsConfigured();
+  const isPrivate = user?.tier === 'passkey' || user?.tier === 'anonymous';
+
+  useEffect(() => {
+    if (!configured) return;
+    const consent = getStoredConsent();
+    setAnalytics(consent.analytics_storage === 'granted');
+  }, [configured]);
+
+  const toggleAnalytics = (on: boolean) => {
+    setAnalytics(on);
+    if (on) acceptAnalytics();
+    else declineAnalytics();
+  };
 
   return (
     <SettingsSection
@@ -24,9 +46,19 @@ export default function PrivacySettings() {
 
       <Field
         label="Send anonymous usage data"
-        hint="Aggregate, anonymous. Never content. Never identifiers."
+        hint={
+          isPrivate
+            ? 'Locked off for passkey and anonymous accounts by design.'
+            : configured
+            ? 'Opt-in. Aggregate, anonymous. Never content. Never identifiers.'
+            : 'Analytics is not configured yet (GA ID not set).'
+        }
       >
-        <Toggle checked={analytics} onChange={setAnalytics} />
+        <Toggle
+          checked={analytics}
+          onChange={toggleAnalytics}
+          disabled={isPrivate || !configured}
+        />
       </Field>
 
       <Field
