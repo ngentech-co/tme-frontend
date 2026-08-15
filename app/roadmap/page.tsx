@@ -28,7 +28,7 @@ const PHASES = [
   },
   {
     name: 'Phase 4 — Collaborative + Stellar',
-    status: 'next',
+    status: 'shipped',
     items: ['Stellar anchoring (invisible)', 'Soroban time-lock contract', 'Collaborative capsules', 'Reactions on unlocked capsules'],
   },
   {

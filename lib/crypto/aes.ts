@@ -70,6 +70,28 @@ export async function encryptBytes(
   };
 }
 
+/**
+ * Decrypt raw ciphertext + iv without requiring full EncryptedBlob metadata.
+ * Used by the collaboration share-wrapping layer.
+ */
+export async function decryptCiphertext(
+  key: CryptoKey,
+  blob: { ciphertext: Uint8Array; iv: Uint8Array },
+  additionalData?: Uint8Array
+): Promise<Uint8Array> {
+  return new Uint8Array(
+    await crypto.subtle.decrypt(
+      {
+        name: ALGO,
+        iv: blob.iv as BufferSource,
+        additionalData: additionalData as BufferSource | undefined,
+      },
+      key,
+      blob.ciphertext as BufferSource
+    )
+  );
+}
+
 export async function decryptBytes(
   key: CryptoKey,
   blob: EncryptedBlob,

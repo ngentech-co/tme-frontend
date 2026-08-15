@@ -64,6 +64,8 @@ export interface SealInput {
   precomputedRound?: number;
   media?: MediaAssetMeta[];
   mediaKeyB64?: string;
+  /** Precomputed AES key to use instead of generating a fresh one. */
+  precomputedKey?: CryptoKey;
 }
 
 export interface UnsealResult {
@@ -74,7 +76,7 @@ export interface UnsealResult {
 }
 
 export async function sealCapsule(input: SealInput): Promise<SealedCapsule> {
-  const key = await generateAesKey();
+  const key = input.precomputedKey ?? (await generateAesKey());
   const round = input.precomputedRound ?? roundForDate(input.unlockAt);
 
   const blob = await encryptString(

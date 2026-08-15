@@ -45,6 +45,18 @@ A privacy-first web app where users seal digital messages, secrets, letters, and
 - Media picker in seal wizard (images / audio / video / files)
 - Encrypted media rendered after unlock
 
+**Phase 4 — Collaborative + Stellar** ✅
+
+- Collaborative capsules with k-of-n Shamir secret sharing
+- Co-author invites (per-member wrapped shares + invite codes)
+- Threshold unlock (opens only when enough members return)
+- Stellar invisible layer: capsule hash anchoring + unlock receipts
+- Soroban time-lock companion (round commitments)
+- Settings → Legal: read-only Stellar anchor viewer + explorer links
+- Reply to past self (from the reveal ceremony)
+- Reactions on unlocked capsules (email tier)
+- Collaborations page (`/inbox/collaborations`)
+
 See `plans.md` for the full master plan.
 
 ## Stack

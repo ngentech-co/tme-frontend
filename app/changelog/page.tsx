@@ -7,6 +7,22 @@ export const metadata: Metadata = {
 
 const ENTRIES = [
   {
+    version: '0.5.0',
+    date: 'August 2026',
+    label: 'Phase 4 — Collaborative + Stellar',
+    items: [
+      'Collaborative capsules with k-of-n Shamir secret sharing',
+      'Co-author invites (per-member wrapped shares + invite codes)',
+      'Threshold unlock: capsule opens only when enough members return',
+      'Stellar invisible layer: capsule hash anchoring + unlock receipts',
+      'Soroban time-lock companion (round commitments)',
+      'Settings → Legal: read-only Stellar anchor viewer + explorer links',
+      'Reply to past self (from the reveal ceremony)',
+      'Reactions on unlocked capsules (email tier)',
+      'Collaborations page (/inbox/collaborations)',
+    ],
+  },
+  {
     version: '0.4.0',
     date: 'August 2026',
     label: 'Phase 3 — Media Expansion',

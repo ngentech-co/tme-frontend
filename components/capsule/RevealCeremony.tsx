@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import type { MediaAssetMeta } from '@/lib/crypto/media';
 import MediaAssetRenderer from '@/components/media/MediaAssetRenderer';
+import Reactions from './Reactions';
+import { useAuth } from '@/lib/auth-context';
 
 interface Props {
   title: string;
@@ -44,6 +47,9 @@ export default function RevealCeremony({
       clearTimeout(t3);
     };
   }, [text]);
+
+  const { user } = useAuth();
+  const allowReact = user?.tier === 'email';
 
   const canRenderMedia =
     stage === 'revealed' && !!userId && !!capsuleId && !!mediaKey && !!media && media.length > 0;
@@ -93,6 +99,11 @@ export default function RevealCeremony({
             </div>
           )}
 
+          <Reactions
+            capsuleId={capsuleId ?? title}
+            allowReact={allowReact}
+          />
+
           <div
             className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-up"
             style={{ animationDelay: '400ms' }}
@@ -109,6 +120,14 @@ export default function RevealCeremony({
                 Copy text
               </button>
             )}
+            <Link
+              href={`/seal?replyTo=${encodeURIComponent(capsuleId ?? '')}&title=${encodeURIComponent(
+                `A reply to: ${title}`
+              )}`}
+              className="btn-ghost"
+            >
+              Reply to past self
+            </Link>
             {onComplete && (
               <button onClick={onComplete} className="btn-primary">
                 Back to inbox

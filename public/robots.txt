@@ -19,6 +19,8 @@ Disallow: /onboarding/
 Disallow: /claim
 Disallow: /api/
 Disallow: /r
+Disallow: /invite
+Disallow: /vault
 
 # Sitemaps
 Sitemap: https://ure.one/sitemap.xml

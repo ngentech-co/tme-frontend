@@ -9,8 +9,10 @@ import { generateRecoveryKey } from '@/lib/recovery';
 import { STORAGE } from '@/lib/constants';
 import { trackEvent } from '@/lib/analytics';
 import MediaPicker, { formatBytes, type PendingMedia } from '@/components/media/MediaPicker';
+import { createCollaborativeCapsule, type CollaborativeSeal } from '@/lib/storage/collab';
+import { STORAGE as TM_STORAGE } from '@/lib/constants';
 
-type Step = 'compose' | 'date' | 'preview' | 'sealing' | 'done';
+type Step = 'compose' | 'date' | 'collab' | 'preview' | 'sealing' | 'done';
 
 interface ImageAsset {
   name: string;
@@ -25,6 +27,7 @@ const MAX_MEDIA_ITEMS = 20;
 const STEP_LABELS: Record<Step, string> = {
   compose: 'compose',
   date: 'unlock date',
+  collab: 'co-authors',
   preview: 'preview',
   sealing: 'sealing',
   done: 'sealed',
@@ -50,11 +53,33 @@ export default function SealWizard() {
   const [error, setError] = useState<string | null>(null);
   const [needsAuth, setNeedsAuth] = useState(false);
 
+  // Collaborative capsule state.
+  const [isCollab, setIsCollab] = useState(false);
+  const [coAuthors, setCoAuthors] = useState<Array<{ id: string; name: string }>>([]);
+  const [threshold, setThreshold] = useState(2);
+  const [invites, setInvites] = useState<Array<{ memberName: string; code: string }>>([]);
+
   useEffect(() => {
     if (!loading && !user) {
       setNeedsAuth(true);
     }
   }, [loading, user]);
+
+  // Pre-fill from "reply to past self" (query params read client-side).
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const replyTo = params.get('replyTo');
+    const replyTitle = params.get('title');
+    if (replyTo) {
+      localStorage.setItem(TM_STORAGE.draftPrefix + 'replyTo', replyTo);
+    }
+    if (replyTitle) {
+      setTitle(replyTitle.slice(0, 120));
+      const draftText = `\n\n— written in reply to a capsule opened on ${new Date().toLocaleDateString()}`;
+      setText((prev) => (prev ? prev : draftText.trim()));
+    }
+  }, []);
 
   if (needsAuth || (loading && !user)) {
     return (
@@ -110,35 +135,61 @@ export default function SealWizard() {
         mime: m.mime,
         file: m.file,
       }));
-      const stored = await createCapsule({
-        userId: user.id,
-        title: title || 'A letter to future me',
-        text,
-        images,
-        media: mediaInputs,
-        unlockAt,
-        visibility,
-        coverColor: 'seal',
-        onMediaProgress: (assetId, p) =>
-          setMediaProgress((prev) => ({ ...prev, [assetId]: p })),
-      });
+
+      if (isCollab) {
+        const recoveryKey =
+          localStorage.getItem(TM_STORAGE.recoveryKeyLocal) ?? '';
+        const result = await createCollaborativeCapsule({
+          userId: user.id,
+          ownerName: user.email?.split('@')[0] ?? user.id.slice(0, 6),
+          recoveryKey,
+          title: title || 'A collaborative letter',
+          text,
+          coAuthors,
+          threshold,
+          unlockAt,
+          visibility,
+          coverColor: 'seal',
+          media: mediaInputs,
+          onMediaProgress: (assetId, p) =>
+            setMediaProgress((prev) => ({ ...prev, [assetId]: p })),
+        });
+        setInvites(result.seal.invites.map((i) => ({ memberName: i.memberName, code: i.code })));
+        setSealedId(result.capsule.id);
+        setShareSlug(result.capsule.shareSlug);
+      } else {
+        const stored = await createCapsule({
+          userId: user.id,
+          title: title || 'A letter to future me',
+          text,
+          images,
+          media: mediaInputs,
+          unlockAt,
+          visibility,
+          coverColor: 'seal',
+          onMediaProgress: (assetId, p) =>
+            setMediaProgress((prev) => ({ ...prev, [assetId]: p })),
+        });
+        setSealedId(stored.id);
+        setShareSlug(stored.shareSlug);
+      }
+
       trackEvent('capsule_sealed', {
         tier: user.tier,
         visibility,
         has_images: images.length > 0,
         media_count: media.length,
-        media_bytes: media.reduce((s, m) => s + m.file.size, 0),
+        collaborative: isCollab,
+        co_authors: coAuthors.length,
         unlock_horizon_months: Math.round(
           (unlockAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30)
         ),
       });
-      setSealedId(stored.id);
-      setShareSlug(stored.shareSlug);
       setStep('done');
     } catch (e) {
       console.error(e);
       setError((e as Error).message);
-      setStep('preview');
+      setStep(isCollab ? 'collab' : 'preview');
     }
   };
 
@@ -154,6 +205,34 @@ export default function SealWizard() {
             <strong>{unlockAt.toLocaleDateString('en-US', { dateStyle: 'long' })}</strong>.
             We've saved it to your inbox.
           </p>
+
+          {invites.length > 0 && (
+            <div className="card-paper p-8 mb-8 text-left">
+              <p className="mono mb-3">share these invite codes</p>
+              <p className="body-sm text-ink-muted mb-5">
+                Each co-author needs their code and this capsule id to accept.
+                Send them{' '}
+                <span className="font-mono">{typeof window !== 'undefined' ? window.location.origin : ''}/invite</span>.
+              </p>
+              <div className="space-y-3">
+                {invites.map((inv, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-cream border border-border-subtle rounded-paper px-4 py-3">
+                    <span className="body-sm flex-1 truncate">{inv.memberName}</span>
+                    <code className="font-mono text-sm tracking-widest">{inv.code}</code>
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/invite?capsule=${sealedId}&code=${inv.code}`;
+                        navigator.clipboard?.writeText(url);
+                      }}
+                      className="btn-link text-sm"
+                    >
+                      Copy link
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {visibility !== 'private' && (
             <div className="card-paper p-8 mb-8 text-left">
@@ -179,6 +258,11 @@ export default function SealWizard() {
             <Link href="/inbox" className="btn-primary">
               Go to inbox
             </Link>
+            {invites.length > 0 && (
+              <Link href="/inbox/collaborations" className="btn-ghost">
+                View collaborations
+              </Link>
+            )}
             {visibility !== 'private' && (
               <Link href={`/public/?slug=${shareSlug}`} className="btn-ghost">
                 View public page
@@ -355,8 +439,113 @@ export default function SealWizard() {
               <button onClick={() => setStep('compose')} className="btn-ghost">
                 ← Back
               </button>
-              <button onClick={() => setStep('preview')} className="btn-primary">
+              <button onClick={() => setStep('collab')} className="btn-primary">
                 Preview →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 'collab' && (
+          <div>
+            <h1 className="display-md mb-4 text-balance">Collaborate, or not.</h1>
+            <p className="body text-ink-muted mb-10">
+              Add co-authors and the capsule will use k-of-n secret sharing —
+              it only opens when enough of you return after the unlock date.
+            </p>
+
+            <div className="card-paper p-8 mb-8">
+              <label className="flex items-start gap-3 cursor-pointer mb-6">
+                <input
+                  type="checkbox"
+                  checked={isCollab}
+                  onChange={(e) => {
+                    setIsCollab(e.target.checked);
+                    if (!e.target.checked) setCoAuthors([]);
+                  }}
+                  className="mt-1 w-5 h-5 accent-seal"
+                />
+                <span className="body">
+                  Make this a collaborative capsule{' '}
+                  <span className="body-sm text-ink-soft">
+                    (k-of-n secret sharing · requires threshold co-authors to open)
+                  </span>
+                </span>
+              </label>
+
+              {isCollab && (
+                <div className="space-y-6">
+                  <div>
+                    <label className="block mono mb-2">co-authors</label>
+                    {coAuthors.map((co, i) => (
+                      <div key={co.id} className="flex items-center gap-3 mb-3">
+                        <input
+                          value={co.name}
+                          onChange={(e) =>
+                            setCoAuthors((prev) =>
+                              prev.map((c, j) => (j === i ? { ...c, name: e.target.value } : c))
+                            )
+                          }
+                          placeholder={`Co-author ${i + 1} name`}
+                          className="flex-1 bg-cream border border-border-subtle rounded-paper px-4 py-3 body-sm focus:border-seal focus:outline-none"
+                        />
+                        <button
+                          onClick={() =>
+                            setCoAuthors((prev) => prev.filter((_, j) => j !== i))
+                          }
+                          className="btn-link text-sm text-seal"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                    {coAuthors.length < 9 && (
+                      <button
+                        onClick={() =>
+                          setCoAuthors((prev) => [
+                            ...prev,
+                            { id: crypto.randomUUID(), name: '' },
+                          ])
+                        }
+                        className="btn-link text-sm"
+                      >
+                        + Add co-author
+                      </button>
+                    )}
+                  </div>
+
+                  {coAuthors.length > 0 && (
+                    <div>
+                      <label className="block mono mb-2">threshold (how many must return)</label>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="range"
+                          min={2}
+                          max={coAuthors.length + 1}
+                          value={threshold}
+                          onChange={(e) => setThreshold(Number(e.target.value))}
+                          className="flex-1 accent-seal"
+                        />
+                        <span className="mono">{threshold} of {coAuthors.length + 1}</span>
+                      </div>
+                      <p className="body-sm text-ink-soft mt-2">
+                        The capsule opens only when {threshold} of the{' '}
+                        {coAuthors.length + 1} members contribute their share.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {error && <p className="mb-6 body text-seal" role="alert">{error}</p>}
+
+            <div className="flex justify-between">
+              <button onClick={() => setStep('date')} className="btn-ghost">
+                ← Back
+              </button>
+              <button onClick={() => setStep('preview')} className="btn-primary">
+                Continue →
               </button>
             </div>
           </div>
@@ -378,7 +567,22 @@ export default function SealWizard() {
               </div>
               <p className="mono text-ink-soft mb-6">
                 unlocks {unlockAt.toLocaleString('en-US', { dateStyle: 'long' })}
+                {isCollab && (
+                  <span className="ml-3 text-seal">
+                    · collaborative {threshold}-of-{coAuthors.length + 1}
+                  </span>
+                )}
               </p>
+              {isCollab && (
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <span className="mono text-xs px-2.5 py-1 rounded-full bg-seal/10 text-seal">you (owner)</span>
+                  {coAuthors.map((co) => (
+                    <span key={co.id} className="mono text-xs px-2.5 py-1 rounded-full border border-border-subtle">
+                      {co.name || 'unnamed co-author'}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="border-t border-border-subtle pt-6">
                 <p className="body whitespace-pre-wrap">{text}</p>
               </div>
@@ -472,7 +676,7 @@ export default function SealWizard() {
 }
 
 function Progress({ step }: { step: Step }) {
-  const steps: Step[] = ['compose', 'date', 'preview'];
+  const steps: Step[] = ['compose', 'date', 'collab', 'preview'];
   const idx = steps.indexOf(step);
   if (step === 'sealing' || step === 'done') return null;
 

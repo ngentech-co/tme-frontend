@@ -1,6 +1,8 @@
 'use client';
 
 import { sealCapsule, unsealCapsule, deriveShareSlug, type SealedCapsule, type UnsealResult } from '@/lib/crypto/capsule';
+import { unsealKey } from '@/lib/crypto/tlock';
+import { importKey } from '@/lib/crypto/aes';
 import {
   generateMediaKey,
   exportMediaKey,
@@ -10,6 +12,7 @@ import {
   type MediaAssetMeta,
 } from '@/lib/crypto/media';
 import { putEncryptedMedia, getEncryptedMedia, deleteCapsuleMedia } from '@/lib/storage/media';
+import { anchorCapsule, recordUnlockReceipt } from '@/lib/stellar/anchor';
 import { STORAGE } from '@/lib/constants';
 
 const CAPSULES_KEY_PREFIX = 'tm:capsules:';
@@ -60,7 +63,7 @@ export function readCapsule(userId: string, id: string): StoredCapsule | null {
   }
 }
 
-function writeCapsule(userId: string, capsule: StoredCapsule): void {
+export function writeCapsule(userId: string, capsule: StoredCapsule): void {
   // Update list
   const list = listCapsules(userId);
   const item: CapsuleListItem = {
@@ -159,6 +162,20 @@ export async function createCapsule(params: SealCapsuleParams): Promise<StoredCa
     sizeBytes: Math.round(size),
   };
   writeCapsule(params.userId, stored);
+
+  // Invisible Stellar anchoring (never blocks sealing).
+  try {
+    await anchorCapsule({
+      userId: params.userId,
+      capsuleId,
+      payload: sealed.payload,
+      drandRound: sealed.drandRound,
+      unlockAt: params.unlockAt,
+    });
+  } catch {
+    // anchoring is best-effort
+  }
+
   return stored;
 }
 
@@ -170,12 +187,42 @@ export async function openCapsule(
   const sealed = readCapsule(userId, capsuleId);
   if (!sealed) throw new Error('Capsule not found');
 
+  // Collaborative capsules require threshold shares before the payload opens.
+  const { getCollabSeal, unsealCollaborative } = await import('@/lib/storage/collab');
+  const collab = getCollabSeal(capsuleId);
+  if (collab && !options.force) {
+    // Recover the raw key to compare against reconstructed shares.
+    const recoveredKeyBytes = await unsealKey(sealed.timeLock);
+    const res = await unsealCollaborative({
+      capsuleId,
+      userId,
+      aesKey: await importKey(recoveredKeyBytes),
+      unlockAt: new Date(sealed.unlockAt),
+    });
+    if (!res.unlocked) {
+      throw new Error(res.reason ?? 'Collaborative capsule could not be opened.');
+    }
+  }
+
   const result = await unsealCapsule(sealed, options);
 
   // Mark as opened
   if (!sealed.openedAt) {
     sealed.openedAt = result.openedAt;
     writeCapsule(userId, sealed);
+  }
+
+  // Invisible Stellar unlock receipt (best-effort).
+  try {
+    await recordUnlockReceipt({
+      userId,
+      capsuleId,
+      payload: sealed.payload,
+      drandRound: sealed.drandRound,
+      unlockAt: new Date(sealed.unlockAt),
+    });
+  } catch {
+    // best-effort
   }
 
   return result;
