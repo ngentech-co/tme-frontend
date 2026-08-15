@@ -21,13 +21,12 @@ import {
   type TimeLockSeal,
 } from './tlock';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
+import type { MediaAssetMeta } from './media';
 
 export interface CapsuleContent {
   text: string;
-  images?: string[];
-  audio?: string[];
-  video?: string[];
-  files?: string[];
+  media?: MediaAssetMeta[];
+  mediaKeyB64?: string;
 }
 
 export interface SealedCapsule {
@@ -63,6 +62,15 @@ export interface SealInput {
   shareSlug?: string;
   coverColor?: string;
   precomputedRound?: number;
+  media?: MediaAssetMeta[];
+  mediaKeyB64?: string;
+}
+
+export interface UnsealResult {
+  text: string;
+  openedAt: string;
+  media?: MediaAssetMeta[];
+  mediaKey?: Uint8Array;
 }
 
 export async function sealCapsule(input: SealInput): Promise<SealedCapsule> {
@@ -74,6 +82,8 @@ export async function sealCapsule(input: SealInput): Promise<SealedCapsule> {
     JSON.stringify({
       text: input.text,
       createdAt: new Date().toISOString(),
+      media: input.media,
+      mediaKeyB64: input.mediaKeyB64,
     })
   );
 
@@ -101,7 +111,7 @@ export async function sealCapsule(input: SealInput): Promise<SealedCapsule> {
 export async function unsealCapsule(
   sealed: SealedCapsule,
   options: { force?: boolean } = {}
-): Promise<{ text: string; openedAt: string }> {
+): Promise<UnsealResult> {
   const unlockDate = new Date(sealed.unlockAt);
   if (!options.force && !isUnlockReady(unlockDate)) {
     throw new Error(
@@ -120,10 +130,28 @@ export async function unsealCapsule(
     createdAt: string;
   };
 
-  return {
+  const result: UnsealResult = {
     text: parsed.text,
     openedAt: new Date().toISOString(),
+    media: parsed.media,
   };
+
+  if (parsed.mediaKeyB64) {
+    try {
+      result.mediaKey = base64ToBytes(parsed.mediaKeyB64);
+    } catch {
+      // media key unreadable — media unavailable
+    }
+  }
+
+  return result;
+}
+
+function base64ToBytes(b64: string): Uint8Array {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }
 
 /**

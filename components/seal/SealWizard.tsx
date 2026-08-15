@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { createCapsule } from '@/lib/storage/capsules';
+import { createCapsule, type SealMediaInput } from '@/lib/storage/capsules';
 import { generateRecoveryKey } from '@/lib/recovery';
 import { STORAGE } from '@/lib/constants';
 import { trackEvent } from '@/lib/analytics';
+import MediaPicker, { formatBytes, type PendingMedia } from '@/components/media/MediaPicker';
 
 type Step = 'compose' | 'date' | 'preview' | 'sealing' | 'done';
 
@@ -16,6 +17,10 @@ interface ImageAsset {
   dataUrl: string;
   sizeBytes: number;
 }
+
+// Per-capsule media budget (matches the storage quota default of 100 MB/capsule).
+const MEDIA_CAP_BYTES = 100 * 1024 * 1024;
+const MAX_MEDIA_ITEMS = 20;
 
 const STEP_LABELS: Record<Step, string> = {
   compose: 'compose',
@@ -32,6 +37,8 @@ export default function SealWizard() {
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
   const [images, setImages] = useState<ImageAsset[]>([]);
+  const [media, setMedia] = useState<PendingMedia[]>([]);
+  const [mediaProgress, setMediaProgress] = useState<Record<string, number>>({});
   const [unlockAt, setUnlockAt] = useState<Date>(() => {
     const d = new Date();
     d.setMonth(d.getMonth() + 6);
@@ -77,6 +84,8 @@ export default function SealWizard() {
 
   if (!user) return null;
 
+  const totalMediaBytes = () => media.reduce((s, m) => s + m.file.size, 0);
+
   const onImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     const accepted: ImageAsset[] = [];
@@ -94,19 +103,31 @@ export default function SealWizard() {
     setStep('sealing');
     setError(null);
     try {
+      const mediaInputs: SealMediaInput[] = media.map((m) => ({
+        id: m.id,
+        kind: m.kind,
+        name: m.name,
+        mime: m.mime,
+        file: m.file,
+      }));
       const stored = await createCapsule({
         userId: user.id,
         title: title || 'A letter to future me',
         text,
         images,
+        media: mediaInputs,
         unlockAt,
         visibility,
         coverColor: 'seal',
+        onMediaProgress: (assetId, p) =>
+          setMediaProgress((prev) => ({ ...prev, [assetId]: p })),
       });
       trackEvent('capsule_sealed', {
         tier: user.tier,
         visibility,
         has_images: images.length > 0,
+        media_count: media.length,
+        media_bytes: media.reduce((s, m) => s + m.file.size, 0),
         unlock_horizon_months: Math.round(
           (unlockAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30)
         ),
@@ -207,35 +228,51 @@ export default function SealWizard() {
               <p className="mono text-ink-soft">{text.length} chars</p>
             </div>
 
-            <label className="block mono mb-3">images (optional, up to 5)</label>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-10">
-              {images.map((img, i) => (
-                <div
-                  key={i}
-                  className="relative aspect-square rounded-paper overflow-hidden border border-border-subtle"
-                >
-                  <img src={img.dataUrl} alt={img.name} className="w-full h-full object-cover" />
-                  <button
-                    onClick={() => setImages((p) => p.filter((_, j) => j !== i))}
-                    className="absolute top-1 right-1 bg-ink/80 text-cream rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                    aria-label="Remove image"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-              {images.length < 5 && (
-                <label className="aspect-square rounded-paper border border-dashed border-border-strong flex items-center justify-center cursor-pointer hover:border-seal transition-colors">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={onImage}
-                    className="sr-only"
-                  />
-                  <span className="text-2xl text-ink-muted">+</span>
-                </label>
-              )}
+            <div className="space-y-10 mb-10">
+              <MediaPicker
+                accept="image/*"
+                label="images (optional)"
+                maxItems={10}
+                maxBytesPerFile={MEDIA_CAP_BYTES}
+                items={media.filter((m) => m.kind === 'image')}
+                onChange={(items) =>
+                  setMedia([...media.filter((m) => m.kind !== 'image'), ...items])
+                }
+                hint="Up to 10 images. Encrypted before upload."
+              />
+              <MediaPicker
+                accept="audio/*"
+                label="audio (optional)"
+                maxItems={5}
+                maxBytesPerFile={MEDIA_CAP_BYTES}
+                items={media.filter((m) => m.kind === 'audio')}
+                onChange={(items) =>
+                  setMedia([...media.filter((m) => m.kind !== 'audio'), ...items])
+                }
+                hint="Songs, voice memos, interviews. Waveforms shown after unlock."
+              />
+              <MediaPicker
+                accept="video/*"
+                label="video (optional)"
+                maxItems={5}
+                maxBytesPerFile={MEDIA_CAP_BYTES}
+                items={media.filter((m) => m.kind === 'video')}
+                onChange={(items) =>
+                  setMedia([...media.filter((m) => m.kind !== 'video'), ...items])
+                }
+                hint="Movies, home video, trailers. Chunked encryption."
+              />
+              <MediaPicker
+                accept="*/*"
+                label="files (optional)"
+                maxItems={MAX_MEDIA_ITEMS}
+                maxBytesPerFile={MEDIA_CAP_BYTES}
+                items={media.filter((m) => m.kind === 'file')}
+                onChange={(items) =>
+                  setMedia([...media.filter((m) => m.kind !== 'file'), ...items])
+                }
+                hint="Any file. Accessible from the file vault after unlock."
+              />
             </div>
 
             <div className="flex justify-end gap-3">
@@ -357,6 +394,28 @@ export default function SealWizard() {
                   ))}
                 </div>
               )}
+              {media.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-border-subtle space-y-3">
+                  <p className="mono mb-3">media · {formatBytes(totalMediaBytes())}</p>
+                  {media.map((m) => (
+                    <div
+                      key={m.id}
+                      className="flex items-center justify-between gap-4 bg-cream rounded-paper px-4 py-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-lg">
+                          {m.kind === 'image' ? '🖼' : m.kind === 'audio' ? '🎵' : m.kind === 'video' ? '🎬' : '📄'}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="body-sm truncate">{m.name}</p>
+                          <p className="mono text-xs text-ink-soft">{formatBytes(m.file.size)}</p>
+                        </div>
+                      </div>
+                      <span className="mono text-xs text-ink-soft flex-shrink-0">{m.kind}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {error && (
@@ -380,10 +439,31 @@ export default function SealWizard() {
               tm
             </span>
             <p className="display-sm mb-4">Sealing…</p>
-            <p className="body text-ink-muted">
+            <p className="body text-ink-muted mb-8">
               Encrypting your content with AES-256 and locking it against a
               future Drand round.
             </p>
+            {media.length > 0 && (
+              <div className="max-w-sm mx-auto space-y-2">
+                {media.map((m) => {
+                  const p = mediaProgress[m.id] ?? 0;
+                  return (
+                    <div key={m.id} className="text-left">
+                      <div className="flex justify-between body-sm mb-1">
+                        <span className="truncate flex-1 mr-3">{m.name}</span>
+                        <span className="mono text-ink-soft">{Math.round(p * 100)}%</span>
+                      </div>
+                      <div className="h-1.5 bg-border-subtle rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-seal transition-all duration-150"
+                          style={{ width: `${Math.round(p * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>

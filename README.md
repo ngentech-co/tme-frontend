@@ -35,6 +35,16 @@ A privacy-first web app where users seal digital messages, secrets, letters, and
 - TOTP two-factor authentication (Web Crypto, QR via `qrcode`)
 - `/auth` page with passkey + email + anonymous sign-in
 
+**Phase 3 — Media Expansion** ✅
+
+- Chunked AES-GCM encryption for large media (1 MiB chunks, memory-safe)
+- IndexedDB media vault (encrypted blobs never leave the device as plaintext)
+- Audio uploads with canvas waveform rendering (Web Audio API)
+- Video uploads with chunked encryption + decrypted playback
+- File vault page (`/vault`)
+- Media picker in seal wizard (images / audio / video / files)
+- Encrypted media rendered after unlock
+
 See `plans.md` for the full master plan.
 
 ## Stack

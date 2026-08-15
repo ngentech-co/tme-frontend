@@ -23,12 +23,12 @@ const PHASES = [
   },
   {
     name: 'Phase 3 — Media Expansion',
-    status: 'next',
+    status: 'shipped',
     items: ['Audio upload + waveforms', 'Video upload (chunked)', 'File vault', 'Storage quota UI'],
   },
   {
     name: 'Phase 4 — Collaborative + Stellar',
-    status: 'planned',
+    status: 'next',
     items: ['Stellar anchoring (invisible)', 'Soroban time-lock contract', 'Collaborative capsules', 'Reactions on unlocked capsules'],
   },
   {

@@ -7,6 +7,21 @@ export const metadata: Metadata = {
 
 const ENTRIES = [
   {
+    version: '0.4.0',
+    date: 'August 2026',
+    label: 'Phase 3 — Media Expansion',
+    items: [
+      'Chunked AES-GCM encryption for large media (1 MiB chunks)',
+      'IndexedDB media vault for encrypted audio, video, and files',
+      'Audio uploads with canvas waveform rendering',
+      'Video uploads with chunked encryption + decrypted playback',
+      'File vault page (/vault) listing capsules with sealed media',
+      'Media picker in the seal wizard (image/audio/video/file)',
+      'Per-asset encryption progress during sealing',
+      'Encrypted media rendered after unlock (image/audio/video/download)',
+    ],
+  },
+  {
     version: '0.3.0',
     date: 'August 2026',
     label: 'Phase 2 — Auth Expansion',

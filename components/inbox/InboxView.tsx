@@ -20,7 +20,7 @@ export default function InboxView() {
   useEffect(() => {
     if (!user) return;
     setCapsules(listCapsules(user.id));
-    setStorageUsed(estimateStorageUsed(user.id));
+    estimateStorageUsed(user.id).then(setStorageUsed);
   }, [user]);
 
   if (loading) {
@@ -78,7 +78,10 @@ export default function InboxView() {
             <Link href="/seal" className="btn-primary">
               Seal a new capsule
             </Link>
-            <Link href="/inbox/settings" className="btn-ghost">
+            <Link href="/vault" className="btn-ghost">
+              File vault
+            </Link>
+            <Link href="/inbox/settings" className="btn-link">
               Settings
             </Link>
           </div>

@@ -17,7 +17,7 @@ export default function BillingSettings() {
 
   useEffect(() => {
     if (!user) return;
-    setUsed(estimateStorageUsed(user.id));
+    estimateStorageUsed(user.id).then(setUsed);
     setCapsules(listCapsules(user.id));
   }, [user]);
 

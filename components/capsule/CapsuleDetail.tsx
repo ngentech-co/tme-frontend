@@ -39,6 +39,8 @@ function CapsuleDetailInner() {
   const [error, setError] = useState<string | null>(null);
   const [phase, setPhase] = useState<'detail' | 'revealing' | 'opened'>('detail');
   const [openedText, setOpenedText] = useState<string | null>(null);
+  const [mediaKey, setMediaKey] = useState<Uint8Array | undefined>(undefined);
+  const [openedMedia, setOpenedMedia] = useState<import('@/lib/crypto/media').MediaAssetMeta[] | undefined>(undefined);
 
   useEffect(() => {
     if (!user || !capsuleId) return;
@@ -58,6 +60,8 @@ function CapsuleDetailInner() {
       const result = await openCapsule(user.id, capsule.id);
       trackEvent('capsule_unlocked', { tier: user.tier, visibility: capsule.visibility });
       setOpenedText(result.text);
+      setMediaKey(result.mediaKey);
+      setOpenedMedia(result.media);
       setPhase('opened');
     } catch (e) {
       setError((e as Error).message);
@@ -65,10 +69,10 @@ function CapsuleDetailInner() {
     }
   };
 
-  const onDelete = () => {
+  const onDelete = async () => {
     if (!user || !capsule) return;
     if (!confirm('Permanently delete this capsule? This cannot be undone.')) return;
-    deleteCapsule(user.id, capsule.id);
+    await deleteCapsule(user.id, capsule.id);
     router.push('/inbox');
   };
 
@@ -120,6 +124,10 @@ function CapsuleDetailInner() {
         text={openedText}
         openedAt={capsule.openedAt ?? new Date().toISOString()}
         onComplete={() => router.push('/inbox')}
+        userId={user.id}
+        capsuleId={capsule.id}
+        media={openedMedia}
+        mediaKey={mediaKey}
       />
     );
   }

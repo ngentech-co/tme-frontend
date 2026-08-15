@@ -1,6 +1,15 @@
 'use client';
 
-import { sealCapsule, unsealCapsule, deriveShareSlug, type SealedCapsule } from '@/lib/crypto/capsule';
+import { sealCapsule, unsealCapsule, deriveShareSlug, type SealedCapsule, type UnsealResult } from '@/lib/crypto/capsule';
+import {
+  generateMediaKey,
+  exportMediaKey,
+  importMediaKey,
+  encryptMedia,
+  decryptMedia,
+  type MediaAssetMeta,
+} from '@/lib/crypto/media';
+import { putEncryptedMedia, getEncryptedMedia, deleteCapsuleMedia } from '@/lib/storage/media';
 import { STORAGE } from '@/lib/constants';
 
 const CAPSULES_KEY_PREFIX = 'tm:capsules:';
@@ -74,17 +83,61 @@ function writeCapsule(userId: string, capsule: StoredCapsule): void {
   );
 }
 
+export interface SealMediaInput {
+  id: string;
+  kind: MediaAssetMeta['kind'];
+  name: string;
+  mime: string;
+  file: Blob;
+}
+
 export interface SealCapsuleParams {
   userId: string;
   title: string;
   text: string;
   images?: Array<{ name: string; dataUrl: string }>;
+  media?: SealMediaInput[];
   unlockAt: Date;
   visibility: 'private' | 'unlisted' | 'public';
   coverColor?: string;
+  onMediaProgress?: (assetId: string, progress: number) => void;
 }
 
 export async function createCapsule(params: SealCapsuleParams): Promise<StoredCapsule> {
+  const capsuleId = crypto.randomUUID();
+  const shareSlug = deriveShareSlug(capsuleId);
+
+  // Generate a per-capsule media key.
+  const mediaKey = await generateMediaKey();
+  const mediaKeyB64 = b64FromBytes(await exportMediaKey(mediaKey));
+
+  // Encrypt each media asset into the vault FIRST so the manifest is accurate.
+  const mediaMeta: MediaAssetMeta[] = [];
+  let mediaBytes = 0;
+
+  if (params.media && params.media.length > 0) {
+    for (const asset of params.media) {
+      const encrypted = await encryptMedia(mediaKey, asset.file, {
+        onProgress: (p) => params.onMediaProgress?.(asset.id, p),
+      });
+      await putMediaBlob(params.userId, capsuleId, asset.id, encrypted.encryptedBlob);
+      mediaBytes += encrypted.encryptedSizeBytes;
+      mediaMeta.push({
+        id: asset.id,
+        kind: asset.kind,
+        name: asset.name,
+        mime: asset.mime,
+        sizeBytes: asset.file.size,
+        encryptedSizeBytes: encrypted.encryptedSizeBytes,
+        chunkCount: encrypted.chunkCount,
+      });
+    }
+  }
+
+  // Legacy images (data URLs) — keep in the text payload for backward compat.
+  const imageBytes =
+    params.images?.reduce((sum, i) => sum + (i.dataUrl.length * 3) / 4, 0) ?? 0;
+
   const sealed = await sealCapsule({
     ownerId: params.userId,
     title: params.title,
@@ -92,17 +145,17 @@ export async function createCapsule(params: SealCapsuleParams): Promise<StoredCa
     unlockAt: params.unlockAt,
     visibility: params.visibility,
     coverColor: params.coverColor,
-    shareSlug: deriveShareSlug(crypto.randomUUID()),
+    shareSlug,
+    media: mediaMeta,
+    mediaKeyB64: mediaKeyB64 || undefined,
   });
 
-  // Compute total size (rough estimate for the demo)
   const size =
-    new TextEncoder().encode(params.text).byteLength +
-    (params.images?.reduce((sum, i) => sum + (i.dataUrl.length * 3) / 4, 0) ?? 0);
+    new TextEncoder().encode(params.text).byteLength + Math.round(imageBytes + mediaBytes);
 
   const stored: StoredCapsule = {
     ...sealed,
-    shareSlug: sealed.shareSlug ?? crypto.randomUUID().slice(0, 8),
+    shareSlug,
     sizeBytes: Math.round(size),
   };
   writeCapsule(params.userId, stored);
@@ -113,7 +166,7 @@ export async function openCapsule(
   userId: string,
   capsuleId: string,
   options: { force?: boolean } = {}
-): Promise<{ text: string; openedAt: string }> {
+): Promise<UnsealResult> {
   const sealed = readCapsule(userId, capsuleId);
   if (!sealed) throw new Error('Capsule not found');
 
@@ -128,11 +181,33 @@ export async function openCapsule(
   return result;
 }
 
-export function deleteCapsule(userId: string, capsuleId: string): void {
+/**
+ * Load a decrypted media asset as a Blob after unlock.
+ * Requires the media key recovered by openCapsule.
+ */
+export async function loadMediaAsset(
+  userId: string,
+  capsuleId: string,
+  asset: MediaAssetMeta,
+  mediaKeyBytes: Uint8Array
+): Promise<Blob> {
+  const encrypted = await getMediaBlob(userId, capsuleId, asset.id);
+  if (!encrypted) throw new Error('Media asset not found in vault');
+  const key = await importMediaKey(mediaKeyBytes);
+  return decryptMedia(key, encrypted, asset.mime);
+}
+
+export async function deleteCapsule(userId: string, capsuleId: string): Promise<void> {
   if (typeof window === 'undefined') return;
   const list = listCapsules(userId).filter((c) => c.id !== capsuleId);
   localStorage.setItem(capsuleKey(userId), JSON.stringify(list));
   localStorage.removeItem(`${CAPSULES_KEY_PREFIX}${userId}:detail:${capsuleId}`);
+  // Remove media from the vault (fire-and-forget; never throws for UI).
+  try {
+    await deleteCapsuleMedia(userId, capsuleId);
+  } catch {
+    // ignore
+  }
 }
 
 export function updateCapsuleVisibility(
@@ -148,13 +223,46 @@ export function updateCapsuleVisibility(
 
 /**
  * Storage usage estimate (bytes) for billing display.
+ * Includes encrypted media stored in the IndexedDB vault.
  */
-export function estimateStorageUsed(userId: string): number {
+export async function estimateStorageUsed(userId: string): Promise<number> {
   if (typeof window === 'undefined') return 0;
   const list = listCapsules(userId);
-  return list.reduce((sum, c) => sum + (c.sizeBytes ?? 0), 0);
+  let total = list.reduce((sum, c) => sum + (c.sizeBytes ?? 0), 0);
+  try {
+    const { estimateMediaStorageUsed } = await import('@/lib/storage/media');
+    total += await estimateMediaStorageUsed(userId);
+  } catch {
+    // vault unavailable
+  }
+  return total;
 }
 
 export function storageQuotaBytes(): number {
   return 5 * 1024 * 1024 * 1024; // 5 GB free tier
+}
+
+// --- media vault helpers ---
+
+async function putMediaBlob(
+  userId: string,
+  capsuleId: string,
+  assetId: string,
+  blob: Blob
+): Promise<void> {
+  await putEncryptedMedia(userId, capsuleId, assetId, blob);
+}
+
+async function getMediaBlob(
+  userId: string,
+  capsuleId: string,
+  assetId: string
+): Promise<Blob | null> {
+  return getEncryptedMedia(userId, capsuleId, assetId);
+}
+
+function b64FromBytes(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
 }

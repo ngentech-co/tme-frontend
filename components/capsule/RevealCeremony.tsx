@@ -1,17 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { MediaAssetMeta } from '@/lib/crypto/media';
+import MediaAssetRenderer from '@/components/media/MediaAssetRenderer';
 
 interface Props {
   title: string;
   text?: string;
   openedAt?: string;
   onComplete?: () => void;
+  userId?: string;
+  capsuleId?: string;
+  media?: MediaAssetMeta[];
+  mediaKey?: Uint8Array;
 }
 
 type Stage = 'sealing' | 'breaking' | 'unfolding' | 'revealed';
 
-export default function RevealCeremony({ title, text, openedAt, onComplete }: Props) {
+export default function RevealCeremony({
+  title,
+  text,
+  openedAt,
+  onComplete,
+  userId,
+  capsuleId,
+  media,
+  mediaKey,
+}: Props) {
   const [stage, setStage] = useState<Stage>('sealing');
 
   useEffect(() => {
@@ -30,6 +45,9 @@ export default function RevealCeremony({ title, text, openedAt, onComplete }: Pr
     };
   }, [text]);
 
+  const canRenderMedia =
+    stage === 'revealed' && !!userId && !!capsuleId && !!mediaKey && !!media && media.length > 0;
+
   if (stage === 'revealed' && text !== undefined) {
     return (
       <main className="min-h-screen px-6 py-12 sm:py-20">
@@ -45,33 +63,52 @@ export default function RevealCeremony({ title, text, openedAt, onComplete }: Pr
             )}
           </div>
 
-          <article
-            className="card-paper p-10 sm:p-14 mb-10 animate-fade-up"
-            style={{ animationDelay: '200ms' }}
-          >
-            <div className="reading-prose">
-              {text.split('\n\n').map((p, i) => (
-                <p key={i} className="body-lg whitespace-pre-wrap text-balance">
-                  {p}
-                </p>
+          {text && (
+            <article
+              className="card-paper p-10 sm:p-14 mb-10 animate-fade-up"
+              style={{ animationDelay: '200ms' }}
+            >
+              <div className="reading-prose">
+                {text.split('\n\n').map((p, i) => (
+                  <p key={i} className="body-lg whitespace-pre-wrap text-balance">
+                    {p}
+                  </p>
+                ))}
+              </div>
+            </article>
+          )}
+
+          {canRenderMedia && userId && capsuleId && mediaKey && (
+            <div className="space-y-8 animate-fade-up" style={{ animationDelay: '300ms' }}>
+              <p className="mono text-ink-muted">sealed media · {media!.length} item{media!.length === 1 ? '' : 's'}</p>
+              {media!.map((asset) => (
+                <MediaAssetRenderer
+                  key={asset.id}
+                  userId={userId}
+                  capsuleId={capsuleId}
+                  asset={asset}
+                  mediaKey={mediaKey}
+                />
               ))}
             </div>
-          </article>
+          )}
 
           <div
             className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-up"
             style={{ animationDelay: '400ms' }}
           >
-            <button
-              onClick={() => {
-                if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                  navigator.clipboard.writeText(text);
-                }
-              }}
-              className="btn-ghost"
-            >
-              Copy text
-            </button>
+            {text && (
+              <button
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    navigator.clipboard.writeText(text);
+                  }
+                }}
+                className="btn-ghost"
+              >
+                Copy text
+              </button>
+            )}
             {onComplete && (
               <button onClick={onComplete} className="btn-primary">
                 Back to inbox

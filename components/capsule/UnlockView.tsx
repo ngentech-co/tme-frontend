@@ -29,6 +29,8 @@ function UnlockViewInner() {
   const capsuleId = searchParams.get('id');
   const [capsule, setCapsule] = useState<StoredCapsule | null>(null);
   const [text, setText] = useState<string | null>(null);
+  const [media, setMedia] = useState<import('@/lib/crypto/media').MediaAssetMeta[] | undefined>(undefined);
+  const [mediaKey, setMediaKey] = useState<Uint8Array | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,7 +43,11 @@ function UnlockViewInner() {
     setCapsule(c);
     if (c.openedAt) {
       openCapsule(user.id, capsuleId, { force: true })
-        .then((r) => setText(r.text))
+        .then((r) => {
+          setText(r.text);
+          setMedia(r.media);
+          setMediaKey(r.mediaKey);
+        })
         .catch((e) => setError(e.message));
     }
   }, [user, capsuleId]);
@@ -94,6 +100,10 @@ function UnlockViewInner() {
       title={capsule.title}
       text={text}
       openedAt={capsule.openedAt ?? new Date().toISOString()}
+      userId={user.id}
+      capsuleId={capsule.id}
+      media={media}
+      mediaKey={mediaKey}
     />
   );
 }
