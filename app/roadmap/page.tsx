@@ -38,7 +38,7 @@ const PHASES = [
   },
   {
     name: 'Phase 6 — i18n + Premium',
-    status: 'planned',
+    status: 'shipped',
     items: ['/locale/* URL structure', 'EN + secondary language', 'Premium tier teaser', 'Domain cutover'],
   },
 ];

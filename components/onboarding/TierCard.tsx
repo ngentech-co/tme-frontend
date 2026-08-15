@@ -13,12 +13,13 @@ interface TierDef {
 interface Props {
   tier: TierDef;
   features: string[];
+  tagline?: string;
   recommended?: boolean;
   busy?: boolean;
   onPick: () => void;
 }
 
-export default function TierCard({ tier, features, recommended, busy, onPick }: Props) {
+export default function TierCard({ tier, features, tagline, recommended, busy, onPick }: Props) {
   return (
     <button
       onClick={onPick}
@@ -44,7 +45,7 @@ export default function TierCard({ tier, features, recommended, busy, onPick }: 
             <PrivacyMeter level={tier.privacyMeter} />
           )}
         </div>
-        <p className="body text-ink-muted">{tier.tagline}</p>
+        <p className="body text-ink-muted">{tagline ?? tier.tagline}</p>
       </div>
 
       <ul className="space-y-3 mb-8">

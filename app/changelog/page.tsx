@@ -7,6 +7,20 @@ export const metadata: Metadata = {
 
 const ENTRIES = [
   {
+    version: '0.7.0',
+    date: 'August 2026',
+    label: 'Phase 6 — i18n + Premium',
+    items: [
+      'Internationalization: /[locale]/ URL structure (en + es)',
+      'EN + Spanish dictionaries, localized home, seal, inbox, auth, onboarding',
+      'Language switcher in home, auth, and inbox headers',
+      'Premium page (/premium) with feature teaser + email waitlist',
+      'Settings → Billing premium teaser linking to the waitlist',
+      'Domain cutover: canonical site URL defaults to tomorrowme.net (env-overridable)',
+      'HTML lang attribute reflects active locale',
+    ],
+  },
+  {
     version: '0.6.0',
     date: 'August 2026',
     label: 'Phase 5 — Discovery & Polish',

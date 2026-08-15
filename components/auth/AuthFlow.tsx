@@ -4,11 +4,15 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { useI18n } from '@/lib/i18n';
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 
 type Mode = 'pick' | 'email' | 'passkey' | 'anonymous';
 
 export default function AuthFlow() {
   const router = useRouter();
+  const { locale, t } = useI18n();
+  const prefix = locale === 'en' ? '' : `/${locale}`;
   const { user, signInEmail, signInPasskey, signInAnonymous } = useAuth();
   const [mode, setMode] = useState<Mode>('pick');
   const [email, setEmail] = useState('');
@@ -52,7 +56,7 @@ export default function AuthFlow() {
       setError(r.error ?? 'Passkey sign-in failed.');
       return;
     }
-    router.push('/inbox');
+    router.push(`${prefix}/inbox`);
   };
 
   const doAnonymous = async () => {
@@ -64,16 +68,19 @@ export default function AuthFlow() {
       setError(r.error ?? 'Could not start anonymous session.');
       return;
     }
-    router.push('/onboarding/recovery-key');
+    router.push(`${prefix}/onboarding/recovery-key`);
   };
 
   return (
     <div className="max-w-reading mx-auto">
+      <div className="flex justify-end mb-4">
+        <LanguageSwitcher />
+      </div>
       <div className="text-center mb-12">
         <span className="seal-stamp mx-auto mb-8 inline-flex">tm</span>
         <p className="mono mb-4">sign in</p>
         <h1 className="display-md mb-4 text-balance">
-          {mode === 'pick' && 'Welcome back.'}
+          {mode === 'pick' && t.auth.welcome}
           {mode === 'email' && 'Sign in with email.'}
           {mode === 'passkey' && 'Use your passkey.'}
           {mode === 'anonymous' && 'Continue anonymously.'}
@@ -91,8 +98,8 @@ export default function AuthFlow() {
           <button onClick={() => setMode('email')} className="card-paper w-full p-6 text-left hover:shadow-paper-lg transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="body font-medium mb-1">✉️ Email</p>
-                <p className="body-sm text-ink-muted">Magic link · no password</p>
+                <p className="body font-medium mb-1">✉️ {t.auth.email}</p>
+                <p className="body-sm text-ink-muted">{t.auth.emailDesc}</p>
               </div>
               <span className="mono">→</span>
             </div>
@@ -101,8 +108,8 @@ export default function AuthFlow() {
           <button onClick={doPasskey} disabled={busy} className="card-paper w-full p-6 text-left hover:shadow-paper-lg transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="body font-medium mb-1">🔐 Passkey</p>
-                <p className="body-sm text-ink-muted">Biometrics or screen lock</p>
+                <p className="body font-medium mb-1">🔐 {t.auth.passkey}</p>
+                <p className="body-sm text-ink-muted">{t.auth.passkeyDesc}</p>
               </div>
               <span className="mono">{busy ? '…' : '→'}</span>
             </div>
@@ -111,8 +118,8 @@ export default function AuthFlow() {
           <button onClick={doAnonymous} disabled={busy} className="card-paper w-full p-6 text-left hover:shadow-paper-lg transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="body font-medium mb-1">👻 Anonymous</p>
-                <p className="body-sm text-ink-muted">Recovery key only</p>
+                <p className="body font-medium mb-1">👻 {t.auth.anonymous}</p>
+                <p className="body-sm text-ink-muted">{t.auth.anonymousDesc}</p>
               </div>
               <span className="mono">{busy ? '…' : '→'}</span>
             </div>
@@ -126,11 +133,11 @@ export default function AuthFlow() {
         <div className="card-paper p-8 sm:p-10">
           {sent ? (
             <div className="text-center">
-              <p className="body font-medium mb-2">Check your inbox.</p>
+              <p className="body font-medium mb-2">{t.auth.checkInbox}</p>
               <p className="body-sm text-ink-muted mb-6">
                 We sent a sign-in link to <strong>{email}</strong>.
               </p>
-              <Link href="/inbox" className="btn-primary">
+              <Link href={`${prefix}/inbox`} className="btn-primary">
                 Continue
               </Link>
             </div>

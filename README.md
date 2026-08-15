@@ -67,6 +67,17 @@ A privacy-first web app where users seal digital messages, secrets, letters, and
 - Comparison expansion: 4 new pages (LetterStream, Day One, encrypted-vs-traditional, free-vs-paid)
 - SEO cross-linking pass (footer, sitemap, topic hubs)
 
+**Phase 6 — i18n + Premium** ✅
+
+- Internationalization: `/[locale]/` URL structure (`en` + `es`)
+- EN + Spanish dictionaries; localized home, seal, inbox, auth, onboarding
+- Language switcher in home, auth, and inbox headers
+- Premium page (`/premium`) with feature teaser + email waitlist
+- Settings → Billing premium teaser linking to the waitlist
+- Domain cutover: canonical site URL defaults to `tomorrowme.net`
+  (override with `NEXT_PUBLIC_SITE_URL`)
+- `<html lang>` reflects the active locale
+
 See `plans.md` for the full master plan.
 
 ## Stack

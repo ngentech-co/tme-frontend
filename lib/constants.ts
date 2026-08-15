@@ -2,12 +2,22 @@
  * Site-wide constants. Single source of truth for branding, URLs, copy.
  */
 
+/**
+ * Site-wide constants. Single source of truth for branding, URLs, copy.
+ */
+
+// Domain cutover: default to the final production domain. Override during
+// staging by setting NEXT_PUBLIC_SITE_URL (e.g. https://ure.one).
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tomorrowme.net'
+).replace(/\/$/, '');
+
 export const SITE = {
   name: 'tomorrowme',
   shortName: 'tm',
   domain: 'tomorrowme.net',
   tempDomain: 'ure.one',
-  url: 'https://ure.one',
+  url: SITE_URL,
   finalUrl: 'https://tomorrowme.net',
   email: 'hello@tomorrowme.net',
   supportEmail: 'support@tomorrowme.net',

@@ -22,6 +22,10 @@ Disallow: /r
 Disallow: /invite
 Disallow: /vault
 Disallow: /people
+Disallow: /es/seal
+Disallow: /es/inbox
+Disallow: /es/auth
+Disallow: /es/onboarding
 
 # Sitemaps
 Sitemap: https://ure.one/sitemap.xml

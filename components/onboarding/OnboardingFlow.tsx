@@ -10,11 +10,14 @@ import EmailSetup from '@/components/onboarding/EmailSetup';
 import PasskeySetup from '@/components/onboarding/PasskeySetup';
 import RecoveryKeyGate from '@/components/onboarding/RecoveryKeyGate';
 import { SITE } from '@/lib/constants';
+import { useI18n } from '@/lib/i18n';
 
 type Step = 'choose' | 'setup' | 'recovery';
 
 export default function OnboardingFlow() {
   const router = useRouter();
+  const { locale, t } = useI18n();
+  const prefix = locale === 'en' ? '' : `/${locale}`;
   const { signInEmail, signInAnonymous, signOut, user } = useAuth();
   const [step, setStep] = useState<Step>('choose');
   const [chosen, setChosen] = useState<'anonymous' | 'email' | 'passkey' | null>(null);
@@ -72,17 +75,17 @@ export default function OnboardingFlow() {
           <div className="max-w-prose mx-auto text-center mb-16">
             <p className="mono mb-6">welcome</p>
             <h1 className="display-md mb-6 text-balance">
-              How do you want to be known?
+              {t.onboarding.title}
             </h1>
             <p className="body-lg text-ink-muted">
-              Pick the account type that fits how you want to seal your future messages.
-              You can switch any time from Settings.
+              {t.onboarding.sub}
             </p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6 max-w-wide mx-auto">
             <TierCard
               tier={TIERS.anonymous}
+              tagline={t.onboarding.anonymousTagline}
               features={[
                 'No email needed',
                 'Self-custody recovery key',
@@ -94,6 +97,7 @@ export default function OnboardingFlow() {
             />
             <TierCard
               tier={TIERS.email}
+              tagline={t.onboarding.emailTagline}
               recommended
               features={[
                 'Magic-link sign in',
@@ -106,6 +110,7 @@ export default function OnboardingFlow() {
             />
             <TierCard
               tier={TIERS.passkey}
+              tagline={t.onboarding.passkeyTagline}
               features={[
                 'WebAuthn passkey only',
                 'No email, no profile',

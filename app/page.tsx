@@ -7,6 +7,7 @@ import {
   howToSchema,
 } from '@/lib/seo';
 import { SITE, TAGLINES } from '@/lib/constants';
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 
 export default function HomePage() {
   return (
@@ -61,6 +62,7 @@ function Header() {
           </Link>
         </nav>
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           <Link href="/explore" className="hidden sm:inline-block btn-link body-sm">
             Explore
           </Link>
@@ -285,6 +287,7 @@ function Footer() {
           <p className="mono text-ink-soft">
             © {new Date().getFullYear()} {SITE.name} · {SITE.domain}
           </p>
+          <LanguageSwitcher />
           <p className="mono text-ink-soft">
             Built with care · sealed with math
           </p>

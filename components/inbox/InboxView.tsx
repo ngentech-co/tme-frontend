@@ -11,8 +11,12 @@ import {
 } from '@/lib/storage/capsules';
 import CountdownInline from '@/components/capsule/CountdownInline';
 import { STORAGE, SITE } from '@/lib/constants';
+import { useI18n } from '@/lib/i18n';
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 
 export default function InboxView() {
+  const { locale, t } = useI18n();
+  const prefix = locale === 'en' ? '' : `/${locale}`;
   const { user, loading, signOut } = useAuth();
   const [capsules, setCapsules] = useState<CapsuleListItem[]>([]);
   const [storageUsed, setStorageUsed] = useState(0);
@@ -36,12 +40,12 @@ export default function InboxView() {
       <main className="min-h-screen flex items-center justify-center px-6 py-20">
         <div className="max-w-reading text-center">
           <span className="seal-stamp mx-auto mb-8 inline-flex">inbox</span>
-          <h1 className="display-md mb-6">Sign in to see your capsules.</h1>
+          <h1 className="display-md mb-6">{t.inbox.signInTitle}</h1>
           <p className="body-lg text-ink-muted mb-10">
-            Your inbox holds every capsule you've sealed. Sign in to continue.
+            {t.inbox.signInBody}
           </p>
-          <Link href="/onboarding" className="btn-primary">
-            Start onboarding
+          <Link href={`${prefix}/onboarding`} className="btn-primary">
+            {t.seal.onboarding}
           </Link>
         </div>
       </main>
@@ -64,9 +68,9 @@ export default function InboxView() {
       <div className="max-w-wide mx-auto">
         <div className="flex items-end justify-between flex-wrap gap-6 mb-12">
           <div>
-            <p className="mono mb-3">your inbox</p>
+            <p className="mono mb-3">{t.inbox.hello.toLowerCase()} · inbox</p>
             <h1 className="display-md">
-              Hello{user.email ? `, ${user.email.split('@')[0]}` : ''}.
+              {t.inbox.hello}{user.email ? `, ${user.email.split('@')[0]}` : ''}.
             </h1>
             <p className="body text-ink-muted mt-2">
               {user.tier === 'anonymous' && 'Anonymous account · self-custody.'}
@@ -74,29 +78,30 @@ export default function InboxView() {
               {user.tier === 'passkey' && 'Passkey account · maximum privacy.'}
             </p>
           </div>
-          <div className="flex gap-3">
-            <Link href="/seal" className="btn-primary">
+          <div className="flex gap-3 flex-wrap items-center">
+            <Link href={`${prefix}/seal`} className="btn-primary">
               Seal a new capsule
             </Link>
-            <Link href="/vault" className="btn-ghost">
-              File vault
+            <Link href={`${prefix}/vault`} className="btn-ghost">
+              {t.nav.vault}
             </Link>
-            <Link href="/people" className="btn-ghost">
-              People
+            <Link href={`${prefix}/people`} className="btn-ghost">
+              {t.nav.people}
             </Link>
-            <Link href="/inbox/collaborations" className="btn-ghost">
-              Collaborations
+            <Link href={`${prefix}/inbox/collaborations`} className="btn-ghost">
+              {t.nav.collaborations}
             </Link>
-            <Link href="/inbox/settings" className="btn-link">
-              Settings
+            <Link href={`${prefix}/inbox/settings`} className="btn-link">
+              {t.nav.settings}
             </Link>
+            <LanguageSwitcher />
           </div>
         </div>
 
         {/* Storage meter */}
         <div className="card-paper p-6 mb-12">
           <div className="flex items-center justify-between mb-3">
-            <span className="mono">storage</span>
+            <span className="mono">{t.inbox.storage}</span>
             <span className="mono text-ink-muted">
               {formatBytes(storageUsed)} / {formatBytes(quota)}
             </span>
@@ -112,18 +117,18 @@ export default function InboxView() {
         {capsules.length === 0 ? (
           <div className="card-paper p-16 text-center">
             <span className="seal-stamp mx-auto mb-8 inline-flex">empty</span>
-            <h2 className="display-sm mb-4">No capsules yet.</h2>
+            <h2 className="display-sm mb-4">{t.inbox.emptyTitle}</h2>
             <p className="body text-ink-muted mb-10">
-              Seal your first letter to the future. It only takes a few minutes.
+              {t.inbox.emptyBody}
             </p>
-            <Link href="/seal" className="btn-primary">
-              Seal your first capsule
+            <Link href={`${prefix}/seal`} className="btn-primary">
+              {t.inbox.sealFirst}
             </Link>
           </div>
         ) : (
           <div className="space-y-12">
             {unlockable.length > 0 && (
-              <Section label="ready to open" highlight>
+              <Section label={t.inbox.ready} highlight>
                 {unlockable.map((c) => (
                   <CapsuleCard key={c.id} capsule={c} />
                 ))}
@@ -131,7 +136,7 @@ export default function InboxView() {
             )}
 
             {sealed.length > 0 && (
-              <Section label="sealed">
+              <Section label={t.inbox.sealedSection}>
                 {sealed.map((c) => (
                   <CapsuleCard key={c.id} capsule={c} />
                 ))}
@@ -139,7 +144,7 @@ export default function InboxView() {
             )}
 
             {opened.length > 0 && (
-              <Section label="opened">
+              <Section label={t.inbox.opened}>
                 {opened.map((c) => (
                   <CapsuleCard key={c.id} capsule={c} />
                 ))}

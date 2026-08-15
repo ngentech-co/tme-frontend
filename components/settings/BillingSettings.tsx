@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import {
   estimateStorageUsed,
@@ -71,11 +72,13 @@ export default function BillingSettings() {
 
       <div className="mt-10 p-6 bg-cream rounded-paper border border-border-subtle">
         <p className="mono mb-2 text-ink-muted">future premium</p>
-        <p className="body text-ink-muted">
-          When (and if) we add a paid tier, it'll unlock longer unlock
-          durations, larger media, collaborative capsules, and Stellar-based
-          proof of unlock. You'll hear about it on the changelog first.
+        <p className="body text-ink-muted mb-4">
+          Longer unlocks, bigger media, collaboration at scale, and on-chain
+          proof of unlock. Join the waitlist to be first.
         </p>
+        <Link href="/premium" className="btn-ghost text-sm py-2 px-5">
+          Join the waitlist →
+        </Link>
       </div>
     </SettingsSection>
   );

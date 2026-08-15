@@ -9,6 +9,7 @@ import { generateRecoveryKey } from '@/lib/recovery';
 import { STORAGE } from '@/lib/constants';
 import { trackEvent } from '@/lib/analytics';
 import MediaPicker, { formatBytes, type PendingMedia } from '@/components/media/MediaPicker';
+import { useI18n } from '@/lib/i18n';
 import { createCollaborativeCapsule, type CollaborativeSeal } from '@/lib/storage/collab';
 import { STORAGE as TM_STORAGE } from '@/lib/constants';
 
@@ -35,6 +36,9 @@ const STEP_LABELS: Record<Step, string> = {
 
 export default function SealWizard() {
   const router = useRouter();
+  const { locale } = useI18n();
+  const prefix = locale === 'en' ? '' : `/${locale}`;
+  const { t } = useI18n();
   const { user, loading } = useAuth();
   const [step, setStep] = useState<Step>('compose');
   const [title, setTitle] = useState('');
@@ -86,20 +90,19 @@ export default function SealWizard() {
       <main className="min-h-screen flex items-center justify-center px-6 py-20">
         <div className="max-w-reading text-center">
           <span className="seal-stamp mx-auto mb-8 inline-flex">seal</span>
-          <h1 className="display-md mb-6">Pick how you want to seal.</h1>
+          <h1 className="display-md mb-6">{t.seal.needsAuthTitle}</h1>
           <p className="body-lg text-ink-muted mb-10">
-            tomorrowme can encrypt your capsule without an account, but you'll
-            need one to retrieve it later. Pick a tier to continue.
+            {t.seal.needsAuthBody}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/onboarding" className="btn-primary">
-              Start onboarding
+            <Link href={`${prefix}/onboarding`} className="btn-primary">
+              {t.seal.onboarding}
             </Link>
-            <Link href="/auth" className="btn-ghost">
-              I already have an account
+            <Link href={`${prefix}/auth`} className="btn-ghost">
+              {t.seal.haveAccount}
             </Link>
-            <Link href="/" className="btn-link">
-              Back home
+            <Link href={`${prefix || '/'}`} className="btn-link">
+              Home
             </Link>
           </div>
         </div>
@@ -198,11 +201,11 @@ export default function SealWizard() {
       <main className="min-h-screen px-6 py-20">
         <div className="max-w-reading mx-auto text-center">
           <span className="seal-stamp mx-auto mb-10 inline-flex animate-seal-pulse">✓</span>
-          <p className="mono mb-6 text-seal">sealed</p>
-          <h1 className="display-md mb-6">It's sealed.</h1>
+          <p className="mono mb-6 text-seal">{t.seal.sealed}</p>
+          <h1 className="display-md mb-6">{t.seal.sealedTitle}</h1>
           <p className="body-lg text-ink-muted mb-10">
             Your capsule will reveal on{' '}
-            <strong>{unlockAt.toLocaleDateString('en-US', { dateStyle: 'long' })}</strong>.
+            <strong>{unlockAt.toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US', { dateStyle: 'long' })}</strong>.
             We've saved it to your inbox.
           </p>
 
@@ -255,12 +258,12 @@ export default function SealWizard() {
           )}
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/inbox" className="btn-primary">
-              Go to inbox
+            <Link href={`${prefix}/inbox`} className="btn-primary">
+              {t.seal.toInbox}
             </Link>
             {invites.length > 0 && (
-              <Link href="/inbox/collaborations" className="btn-ghost">
-                View collaborations
+              <Link href={`${prefix}/inbox/collaborations`} className="btn-ghost">
+                {t.nav.collaborations}
               </Link>
             )}
             {visibility !== 'private' && (
@@ -281,33 +284,33 @@ export default function SealWizard() {
 
         {step === 'compose' && (
           <div>
-            <h1 className="display-md mb-4 text-balance">Write to your future self.</h1>
+            <h1 className="display-md mb-4 text-balance">{t.seal.composeTitle}</h1>
             <p className="body text-ink-muted mb-10">
-              Anything. A confession. A song. A promise. A photograph.
+              {t.seal.composeSub}
             </p>
 
-            <label className="block mono mb-3">title</label>
+            <label className="block mono mb-3">{t.seal.titleLabel}</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="A letter to future me"
+              placeholder={t.seal.titlePlaceholder}
               maxLength={120}
               className="w-full bg-paper border border-border-subtle rounded-paper px-5 py-4 body mb-8 focus:border-seal focus:outline-none"
             />
 
-            <label className="block mono mb-3">message</label>
+            <label className="block mono mb-3">{t.seal.messageLabel}</label>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Dear future me,&#10;&#10;Right now, on this day…"
+              placeholder={t.seal.messagePlaceholder}
               rows={14}
               maxLength={50000}
               className="w-full bg-paper border border-border-subtle rounded-paper px-5 py-4 body resize-y focus:border-seal focus:outline-none"
             />
             <div className="flex justify-between items-center mt-3 mb-10">
               <p className="body-sm text-ink-soft">
-                Encrypted in your browser before upload.
+                {t.seal.encryptedNote}
               </p>
               <p className="mono text-ink-soft">{text.length} chars</p>
             </div>
@@ -365,7 +368,7 @@ export default function SealWizard() {
                 disabled={!text.trim()}
                 className="btn-primary"
               >
-                Pick the date →
+                {t.seal.pickDate}
               </button>
             </div>
           </div>

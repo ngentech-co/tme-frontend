@@ -27,6 +27,8 @@ const STATIC_PATHS = [
   '/learn',
   '/topics',
   '/explore',
+  '/premium',
+  '/es',
 ];
 
 const LEARN = [
