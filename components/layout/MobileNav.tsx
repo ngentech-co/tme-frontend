@@ -14,8 +14,9 @@ export default function MobileNav() {
   const { t } = useI18n();
   const { user } = useAuth();
 
+  const homeHref = user ? '/home' : '/';
   const tabs = [
-    { href: '/', label: 'Home', icon: '⌂', match: (p: string) => p === '/' || p === '/en' || p === '/es' },
+    { href: homeHref, label: 'Home', icon: '⌂', match: (p: string) => p === '/' || p === '/home' || p === '/en' || p === '/es' },
     { href: '/seal', label: 'Seal', icon: '✉', match: (p: string) => p.includes('/seal') },
     { href: '/explore', label: 'Explore', icon: '◎', match: (p: string) => p.includes('/explore') || p.includes('/topics') },
     { href: user ? '/inbox' : '/auth', label: user ? 'Inbox' : 'Sign in', icon: user ? '▤' : '→', match: (p: string) => p.includes('/inbox') || p.includes('/auth') },

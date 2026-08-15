@@ -79,10 +79,10 @@ export default function SettingsLayout({ current, children }: Props) {
         <div className="grid lg:grid-cols-[260px_1fr] gap-8 lg:gap-12">
           {/* Desktop: sidebar nav. Mobile: compact horizontal scroll nav. */}
           <aside>
-            <Link href="/inbox" className="mono text-ink-muted hover:text-ink mb-4 lg:mb-10 inline-block">
+            <Link href="/inbox" className="mono text-ink-muted hover:text-ink mb-3 lg:mb-10 inline-block text-sm lg:text-base">
               ← inbox
             </Link>
-            <p className="mono mb-4 lg:mb-6">settings</p>
+            <p className="mono mb-3 lg:mb-6">settings</p>
             <nav className="flex lg:flex-col gap-1 overflow-x-auto pb-2 lg:pb-0 lg:space-y-1">
               {SECTIONS.map((s) => {
                 const active = pathname === s.href || (s.id === 'hub' && pathname === '/inbox/settings');
@@ -113,10 +113,10 @@ export default function SettingsLayout({ current, children }: Props) {
                   You're using a <strong>{user.tier}</strong> account. Pick a section
                   from the left to manage everything from tier switching to data export.
                 </p>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   {SECTIONS.filter((s) => s.id !== 'hub').map((s) => (
-                    <Link key={s.id} href={s.href} className="card-paper p-7 transition-colors">
-                      <h3 className="heading-md mb-2">{s.label}</h3>
+                    <Link key={s.id} href={s.href} className="card-paper p-4 md:p-7 transition-colors">
+                      <h3 className="heading-md mb-1 md:mb-2">{s.label}</h3>
                       <p className="body-sm text-ink-muted">{s.desc}</p>
                     </Link>
                   ))}

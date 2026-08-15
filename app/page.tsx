@@ -8,6 +8,7 @@ import {
 } from '@/lib/seo';
 import { SITE, TAGLINES } from '@/lib/constants';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
+import LandingGate from '@/components/layout/LandingGate';
 
 export default function HomePage() {
   return (
@@ -32,13 +33,16 @@ export default function HomePage() {
         ])}
       />
 
-      <Header />
-      <Hero />
-      {/* Desktop-only: manifesto + proof (more structure on desktop) */}
-      <Manifesto />
-      <How />
-      <Proof />
-      <Footer />
+      {/* Landing is for unauthenticated users only; signed-in users go to /home. */}
+      <LandingGate>
+        <Header />
+        <Hero />
+        {/* Desktop-only: manifesto + proof (more structure on desktop) */}
+        <Manifesto />
+        <How />
+        <Proof />
+        <Footer />
+      </LandingGate>
     </>
   );
 }
@@ -152,11 +156,6 @@ function Hero() {
     <section className="relative">
       <div className="container-page pt-14 pb-16 md:pt-32 md:pb-40">
         <div className="max-w-wide mx-auto text-center">
-          {/* Mobile: small seal mark. Desktop: larger. */}
-          <div className="flex justify-center mb-6 md:mb-10">
-            <span className="seal-stamp">tm</span>
-          </div>
-
           <h1 className="display-xl text-balance mb-5 md:mb-8">{TAGLINES.primary}</h1>
 
           <p className="body-lg text-ink-muted max-w-reading mx-auto text-pretty mb-8 md:mb-12">

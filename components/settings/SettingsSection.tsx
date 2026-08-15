@@ -11,25 +11,25 @@ interface Props {
 export default function SettingsSection({ title, description, children }: Props) {
   return (
     <div>
-      <p className="mono mb-4">settings</p>
-      <h1 className="display-md mb-4 text-balance">{title}</h1>
+      <p className="mono mb-3 md:mb-4">settings</p>
+      <h1 className="display-md mb-3 md:mb-4 text-balance">{title}</h1>
       {description && (
-        <p className="body-lg text-ink-muted mb-10">{description}</p>
+        <p className="body-lg text-ink-muted mb-6 md:mb-10">{description}</p>
       )}
-      <div className="card-paper p-8 sm:p-10">{children}</div>
+      <div className="card-paper p-4 sm:p-6 md:p-8 lg:p-10">{children}</div>
     </div>
   );
 }
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
-    <div className="border-b border-border-subtle last:border-b-0 py-6 first:pt-0 last:pb-0">
-      <div className="flex items-start justify-between gap-6 flex-wrap">
-        <div className="flex-1 min-w-[200px]">
+    <div className="border-b border-border-subtle last:border-b-0 py-5 md:py-6 first:pt-0 last:pb-0">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between md:gap-6">
+        <div className="flex-1 md:min-w-[200px] mb-3 md:mb-0">
           <p className="body font-medium mb-1">{label}</p>
           {hint && <p className="body-sm text-ink-muted">{hint}</p>}
         </div>
-        <div className="flex-shrink-0">{children}</div>
+        <div className="flex-shrink-0 md:pt-0.5">{children}</div>
       </div>
     </div>
   );
