@@ -1,0 +1,122 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
+interface Props {
+  title: string;
+  text?: string;
+  openedAt?: string;
+  onComplete?: () => void;
+}
+
+type Stage = 'sealing' | 'breaking' | 'unfolding' | 'revealed';
+
+export default function RevealCeremony({ title, text, openedAt, onComplete }: Props) {
+  const [stage, setStage] = useState<Stage>('sealing');
+
+  useEffect(() => {
+    if (text !== undefined) {
+      // Already opened, skip ceremony intro
+      setStage('revealed');
+      return;
+    }
+    const t1 = setTimeout(() => setStage('breaking'), 900);
+    const t2 = setTimeout(() => setStage('unfolding'), 1700);
+    const t3 = setTimeout(() => setStage('revealed'), 2600);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [text]);
+
+  if (stage === 'revealed' && text !== undefined) {
+    return (
+      <main className="min-h-screen px-6 py-12 sm:py-20">
+        <div className="max-w-prose mx-auto">
+          <div className="text-center mb-10 animate-fade-up">
+            <span className="seal-stamp mx-auto mb-6 inline-flex">✓</span>
+            <p className="mono text-seal mb-3">revealed</p>
+            <h1 className="display-md mb-3">{title}</h1>
+            {openedAt && (
+              <p className="mono text-ink-soft">
+                opened {new Date(openedAt).toLocaleString()}
+              </p>
+            )}
+          </div>
+
+          <article
+            className="card-paper p-10 sm:p-14 mb-10 animate-fade-up"
+            style={{ animationDelay: '200ms' }}
+          >
+            <div className="reading-prose">
+              {text.split('\n\n').map((p, i) => (
+                <p key={i} className="body-lg whitespace-pre-wrap text-balance">
+                  {p}
+                </p>
+              ))}
+            </div>
+          </article>
+
+          <div
+            className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-up"
+            style={{ animationDelay: '400ms' }}
+          >
+            <button
+              onClick={() => {
+                if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                  navigator.clipboard.writeText(text);
+                }
+              }}
+              className="btn-ghost"
+            >
+              Copy text
+            </button>
+            {onComplete && (
+              <button onClick={onComplete} className="btn-primary">
+                Back to inbox
+              </button>
+            )}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen flex items-center justify-center px-6">
+      <div className="text-center max-w-reading">
+        <div className="mb-12">
+          {stage === 'sealing' && (
+            <span className="seal-stamp mx-auto inline-flex animate-seal-pulse">tm</span>
+          )}
+          {stage === 'breaking' && (
+            <span
+              className="seal-stamp mx-auto inline-flex"
+              style={{ animation: 'seal-break 0.8s ease-out forwards' }}
+            >
+              tm
+            </span>
+          )}
+          {stage === 'unfolding' && (
+            <span
+              className="seal-stamp mx-auto inline-flex opacity-0"
+              style={{
+                animation: 'fade-in 0.9s ease-out forwards',
+              }}
+            >
+              ✓
+            </span>
+          )}
+        </div>
+
+        <h1 className="display-md mb-4 animate-fade-up">{title}</h1>
+        <p className="body-lg text-ink-muted animate-fade-up" style={{ animationDelay: '150ms' }}>
+          {stage === 'sealing' && 'The seal is responding…'}
+          {stage === 'breaking' && 'Breaking the seal…'}
+          {stage === 'unfolding' && 'Fetching the future.'}
+        </p>
+      </div>
+    </main>
+  );
+}

@@ -7,6 +7,7 @@ const nextConfig = {
   },
   reactStrictMode: true,
   poweredByHeader: false,
+  pageExtensions: ['ts', 'tsx', 'md', 'mdx'],
   experimental: {
     typedRoutes: false,
   },

@@ -1,5 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { SITE } from '@/lib/constants';
+import { BLOG_POSTS } from '@/lib/blog-posts';
+import { USE_CASES } from '@/components/seo/UseCaseTemplate';
+import { COMPARISONS } from '@/components/seo/ComparisonTemplate';
 
 const STATIC_PATHS = [
   '',
@@ -18,31 +21,8 @@ const STATIC_PATHS = [
   '/changelog',
   '/roadmap',
   '/press',
-];
-
-const USE_CASES = [
-  'letter-to-future-self',
-  'digital-time-capsule',
-  'sealed-secrets-and-confessions',
-  'unreleased-music',
-  'family-time-capsule',
-  'anniversary-surprises',
-  'birthday-messages',
-  'wedding-vows',
-  'graduation-letters',
-  'grief-and-memorial',
-  'baby-letters',
-  'business-announcements',
-];
-
-const COMPARISONS = [
-  'tomorrowme-vs-futureme',
-  'tomorrowme-vs-capsule',
-  'tomorrowme-vs-letterstream',
-  'tomorrowme-vs-dayone',
-  'tomorrowme-vs-google-keeps-scheduled',
-  'encrypted-vs-traditional-time-capsule',
-  'free-vs-paid-time-capsule-apps',
+  '/use-cases',
+  '/compare',
 ];
 
 const LEARN = [
@@ -66,15 +46,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === '' ? 1.0 : path === '/security' || path === '/how-it-works' ? 0.9 : 0.7,
   }));
 
-  const useCaseEntries: MetadataRoute.Sitemap = USE_CASES.map((slug) => ({
-    url: `${baseUrl}/use-cases/${slug}`,
+  const useCaseEntries: MetadataRoute.Sitemap = USE_CASES.map((uc) => ({
+    url: `${baseUrl}/use-cases/${uc.slug}`,
     lastModified: now,
     changeFrequency: 'monthly',
     priority: 0.8,
   }));
 
-  const compareEntries: MetadataRoute.Sitemap = COMPARISONS.map((slug) => ({
-    url: `${baseUrl}/compare/${slug}`,
+  const compareEntries: MetadataRoute.Sitemap = COMPARISONS.map((c) => ({
+    url: `${baseUrl}/compare/${c.slug}`,
     lastModified: now,
     changeFrequency: 'monthly',
     priority: 0.8,
@@ -96,11 +76,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
+  const blogEntries: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: 'monthly',
+    priority: 0.6,
+  }));
+
   return [
     ...staticEntries,
     ...useCaseEntries,
     ...compareEntries,
     ...learnEntries,
     ...blogIndex,
+    ...blogEntries,
   ];
 }

@@ -1,0 +1,16 @@
+import type { Metadata } from 'next';
+import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
+
+export const metadata: Metadata = {
+  title: 'Choose your account',
+  description: 'Pick the account type that fits how you want to seal your future messages.',
+  robots: { index: false, follow: false },
+};
+
+export default function OnboardingPage() {
+  return (
+    <main className="min-h-screen px-6 py-16 sm:py-24">
+      <OnboardingFlow />
+    </main>
+  );
+}
