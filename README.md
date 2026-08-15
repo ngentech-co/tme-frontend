@@ -168,4 +168,4 @@ The current time-lock implementation uses an IBE-style seed derivation for Phase
 
 ## License
 
-TBD.
+MIT. See [LICENSE](LICENSE).
