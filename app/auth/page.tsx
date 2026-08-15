@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function AuthPage() {
   return (
-    <main className="min-h-screen px-6 py-16 sm:py-24">
+    <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-24">
       <AuthFlow />
     </main>
   );

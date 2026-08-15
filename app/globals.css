@@ -82,27 +82,18 @@
     background-color: var(--color-cream);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-size: 1.0625rem;
+    font-size: 1rem;
     line-height: 1.6;
     min-height: 100vh;
     position: relative;
+    padding-bottom: 64px; /* room for the mobile bottom nav */
   }
 
-  /* Subtle paper grain texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.08 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    opacity: 0.55;
-    mix-blend-mode: multiply;
-  }
-
-  body > * {
-    position: relative;
-    z-index: 1;
+  /* Desktop: no bottom nav → remove the pad. */
+  @media (min-width: 768px) {
+    body {
+      padding-bottom: 0;
+    }
   }
 
   ::selection {
@@ -156,37 +147,39 @@
 
 @layer components {
   .container-page {
-    @apply mx-auto px-6 sm:px-10 lg:px-16;
+    @apply mx-auto px-5 sm:px-8 lg:px-12;
     max-width: 76rem;
   }
 
   .container-reading {
-    @apply mx-auto px-6;
+    @apply mx-auto px-5;
     max-width: 46rem;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-body font-medium transition-all duration-300;
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 sm:px-7 text-body font-medium transition-colors duration-200;
     min-height: 48px;
   }
 
   .btn-primary {
-    @apply btn bg-seal text-cream shadow-paper;
+    @apply btn bg-seal text-cream;
+  }
+
+  .btn-primary:active {
+    background-color: rgb(var(--color-seal-deep));
   }
 
   .btn-primary:hover {
     background-color: rgb(var(--color-seal-deep));
-    transform: translateY(-1px);
-    box-shadow: 0 12px 32px rgba(181, 57, 42, 0.28);
   }
 
   .btn-ghost {
     @apply btn bg-transparent text-ink;
-    border: 1px solid var(--color-seal);
+    border: 1px solid var(--color-border-strong);
   }
 
   .btn-ghost:hover {
-    background-color: rgba(181, 57, 42, 0.06);
+    border-color: var(--color-seal);
   }
 
   .btn-link {
@@ -216,13 +209,12 @@
   }
 
   .seal-stamp {
-    @apply inline-flex items-center justify-center w-16 h-16 rounded-seal bg-seal text-cream font-display text-2xl shadow-seal;
+    @apply inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-seal text-cream font-display text-lg sm:text-2xl;
   }
 
   .ink-rule {
     height: 1px;
-    background: linear-gradient(to right, transparent, var(--color-seal), transparent);
-    transform-origin: left;
+    background: var(--color-border-strong);
   }
 
   .reading-prose p {
@@ -246,20 +238,6 @@
   .paper-shadow {
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.5) inset,
-      0 4px 24px rgba(26, 24, 20, 0.06);
-  }
-
-  .grain {
-    position: relative;
-  }
-
-  .grain::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.4;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.08 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      0 1px 2px rgba(26, 24, 20, 0.05);
   }
 }

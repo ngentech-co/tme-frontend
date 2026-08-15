@@ -64,9 +64,32 @@ export default function InboxView() {
   const opened = capsules.filter((c) => c.openedAt);
 
   return (
-    <main className="min-h-screen px-6 py-12">
+    <main className="min-h-screen px-4 sm:px-6 py-6 md:py-12">
       <div className="max-w-wide mx-auto">
-        <div className="flex items-end justify-between flex-wrap gap-6 mb-12">
+        {/* Mobile: compact sticky top bar with just seal CTA + settings. */}
+        <div className="md:hidden flex items-center justify-between mb-6">
+          <div>
+            <h1 className="display-sm">
+              {t.inbox.hello}{user.email ? `, ${user.email.split('@')[0]}` : ''}.
+            </h1>
+            <p className="mono text-xs text-ink-soft mt-1">{t.nav.inbox.toLowerCase()}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href={`${prefix}/seal`} className="btn-primary !py-2 !px-4 !text-sm">
+              + Seal
+            </Link>
+            <Link
+              href={`${prefix}/inbox/settings`}
+              className="btn-ghost !py-2 !px-3 !text-sm"
+              aria-label={t.nav.settings}
+            >
+              ⚙
+            </Link>
+          </div>
+        </div>
+
+        {/* Desktop: full dashboard header with all actions. */}
+        <div className="hidden md:flex items-end justify-between flex-wrap gap-6 mb-12">
           <div>
             <p className="mono mb-3">{t.inbox.hello.toLowerCase()} · inbox</p>
             <h1 className="display-md">
@@ -98,8 +121,8 @@ export default function InboxView() {
           </div>
         </div>
 
-        {/* Storage meter */}
-        <div className="card-paper p-6 mb-12">
+        {/* Storage meter — desktop only (less content on mobile). */}
+        <div className="hidden md:block card-paper p-6 mb-12">
           <div className="flex items-center justify-between mb-3">
             <span className="mono">{t.inbox.storage}</span>
             <span className="mono text-ink-muted">
@@ -175,10 +198,10 @@ function Section({
 }) {
   return (
     <section>
-      <h2 className={`mono mb-6 ${highlight ? 'text-seal' : 'text-ink-muted'}`}>
+      <h2 className={`mono mb-3 md:mb-6 ${highlight ? 'text-seal' : 'text-ink-muted'}`}>
         {label}
       </h2>
-      <div className="grid md:grid-cols-2 gap-5">{children}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5">{children}</div>
     </section>
   );
 }
@@ -190,11 +213,11 @@ function CapsuleCard({ capsule }: { capsule: CapsuleListItem }) {
   return (
     <Link
       href={`/capsule?id=${capsule.id}`}
-      className="card-paper p-7 hover:shadow-paper-lg hover:-translate-y-0.5 transition-all"
+      className="card-paper p-4 md:p-7"
     >
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-2 md:mb-3">
         <h3 className="heading-md flex-1 mr-3">{capsule.title}</h3>
-        {isReady && <span className="seal-stamp !w-9 !h-9 !text-xs">✓</span>}
+        {isReady && <span className="seal-stamp !w-8 !h-8 !text-xs md:!w-9 md:!h-9">✓</span>}
       </div>
       <p className="mono text-ink-soft mb-5">
         {opened
@@ -204,7 +227,7 @@ function CapsuleCard({ capsule }: { capsule: CapsuleListItem }) {
           : `unlocks ${new Date(capsule.unlockAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}`}
       </p>
       {!opened && !isReady && <CountdownInline to={new Date(capsule.unlockAt)} />}
-      <div className="flex items-center justify-between mt-5 pt-5 border-t border-border-subtle">
+      <div className="flex items-center justify-between mt-4 md:mt-5 pt-4 md:pt-5 border-t border-border-subtle">
         <span className="mono text-xs">{capsule.visibility}</span>
         <span className="mono text-xs">
           {Math.round(capsule.sizeBytes / 1024)} KB

@@ -51,7 +51,7 @@ export default function MediaAssetRenderer({ userId, capsuleId, asset, mediaKey 
   if (!url) {
     return (
       <div className="rounded-paper border border-border-subtle p-6 bg-cream flex items-center justify-center gap-3">
-        <span className="seal-stamp !w-8 !h-8 !text-xs animate-seal-pulse">tm</span>
+        <span className="seal-stamp !w-8 !h-8 !text-xs">tm</span>
         <span className="mono text-ink-soft">decrypting {asset.name}…</span>
       </div>
     );

@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function CompareIndex() {
   return (
-    <main className="container-page py-24 sm:py-32">
+    <main className="container-page py-12 sm:py-24 md:py-32">
       <div className="max-w-prose mx-auto">
         <p className="mono mb-6">compare</p>
         <h1 className="display-lg mb-10 text-balance">How we compare.</h1>
@@ -21,7 +21,7 @@ export default function CompareIndex() {
             <Link
               key={c.slug}
               href={`/compare/${c.slug}`}
-              className="block card-paper p-7 hover:shadow-paper-lg hover:-translate-y-0.5 transition-all"
+              className="block card-paper p-4 sm:p-7 transition-colors"
             >
               <h2 className="heading-md mb-2">tomorrowme vs {c.competitor}</h2>
               <p className="body text-ink-muted">{c.positioning}</p>

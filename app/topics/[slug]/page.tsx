@@ -112,7 +112,7 @@ export default function TopicPage({ params }: Props) {
       {ld.map((d, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
       ))}
-      <main className="container-page py-24 sm:py-32">
+      <main className="container-page py-12 sm:py-24 md:py-32">
         <div className="max-w-prose mx-auto">
           <Link href="/topics" className="mono text-ink-muted hover:text-ink mb-10 inline-block">
             ← topics

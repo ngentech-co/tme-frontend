@@ -36,7 +36,7 @@ const GUIDES = [
 
 export default function LearnIndex() {
   return (
-    <main className="container-page py-24 sm:py-32">
+    <main className="container-page py-12 sm:py-24 md:py-32">
       <div className="max-w-prose mx-auto">
         <p className="mono mb-6">learn</p>
         <h1 className="display-lg mb-10 text-balance">
@@ -52,7 +52,7 @@ export default function LearnIndex() {
             <Link
               key={g.href}
               href={g.href}
-              className="block card-paper p-8 hover:shadow-paper-lg hover:-translate-y-0.5 transition-all"
+              className="block card-paper p-4 sm:p-8 transition-colors"
             >
               <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                 <h2 className="heading-md">{g.title}</h2>

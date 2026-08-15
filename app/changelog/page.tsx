@@ -111,7 +111,7 @@ const ENTRIES = [
 
 export default function ChangelogPage() {
   return (
-    <main className="container-page py-24 sm:py-32">
+    <main className="container-page py-12 sm:py-24 md:py-32">
       <div className="max-w-prose mx-auto">
         <p className="mono mb-6">changelog</p>
         <h1 className="display-lg mb-12 text-balance">What we've built.</h1>

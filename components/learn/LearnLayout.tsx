@@ -11,7 +11,7 @@ interface Props {
 
 export default function LearnLayout({ eyebrow, title, intro, children, related }: Props) {
   return (
-    <main className="container-page py-24 sm:py-32">
+    <main className="container-page py-12 sm:py-24 md:py-32">
       <div className="max-w-prose mx-auto">
         <Link href="/learn" className="mono text-ink-muted hover:text-ink mb-10 inline-block">
           ← learn
@@ -27,7 +27,7 @@ export default function LearnLayout({ eyebrow, title, intro, children, related }
             <h2 className="display-sm mb-6">Keep reading</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {related.map((r) => (
-                <Link key={r.href} href={r.href} className="card-paper p-6 hover:shadow-paper-lg transition-all">
+                <Link key={r.href} href={r.href} className="card-paper p-6 transition-colors">
                   <span className="body">{r.label} →</span>
                 </Link>
               ))}

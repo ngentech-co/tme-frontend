@@ -24,12 +24,12 @@ function LocalizedHeader() {
   const { locale, t } = useI18n();
   return (
     <header className="border-b border-border-subtle">
-      <div className="container-page flex items-center justify-between py-5">
-        <Link href={`/${locale}`} className="flex items-center gap-2.5">
-          <span className="seal-stamp w-9 h-9 text-base">tm</span>
-          <span className="font-display text-xl">{SITE.name}</span>
+      <div className="container-page flex items-center justify-between h-14 md:h-16">
+        <Link href={`/${locale}`} className="flex items-center gap-2">
+          <span className="seal-stamp !w-8 !h-8 !text-sm">tm</span>
+          <span className="font-display text-lg md:text-xl">{SITE.name}</span>
         </Link>
-        <nav className="hidden md:flex items-center gap-8 body-sm">
+        <nav className="hidden md:flex items-center gap-7 body-sm">
           <Link href="/how-it-works" className="text-ink-muted hover:text-ink transition-colors">
             {t.nav.howItWorks}
           </Link>
@@ -40,9 +40,11 @@ function LocalizedHeader() {
             {t.nav.faq}
           </Link>
         </nav>
-        <div className="flex items-center gap-3">
-          <LanguageSwitcher />
-          <Link href={`/${locale}/seal`} className="btn-primary text-sm py-2.5 px-5">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="hidden md:block">
+            <LanguageSwitcher />
+          </div>
+          <Link href={`/${locale}/seal`} className="btn-primary !py-2 !px-4 md:!py-3 md:!px-6 !text-sm md:!text-base">
             {t.nav.seal}
           </Link>
         </div>
@@ -55,24 +57,24 @@ function LocalizedHero() {
   const { locale, t } = useI18n();
   return (
     <section className="relative">
-      <div className="container-page pt-24 pb-32 sm:pt-32 sm:pb-40">
+      <div className="container-page pt-14 pb-16 md:pt-32 md:pb-40">
         <div className="max-w-wide mx-auto text-center">
-          <div className="flex justify-center mb-10">
-            <span className="seal-stamp animate-seal-pulse">tm</span>
+          <div className="flex justify-center mb-6 md:mb-10">
+            <span className="seal-stamp">tm</span>
           </div>
-          <h1 className="display-xl text-balance mb-8">{t.home.heroTitle}</h1>
-          <p className="body-lg text-ink-muted max-w-reading mx-auto text-pretty mb-12">
+          <h1 className="display-xl text-balance mb-5 md:mb-8">{t.home.heroTitle}</h1>
+          <p className="body-lg text-ink-muted max-w-reading mx-auto text-pretty mb-8 md:mb-12">
             {t.home.heroSub}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href={`/${locale}/seal`} className="btn-primary text-base">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
+            <Link href={`/${locale}/seal`} className="btn-primary w-full sm:w-auto text-base">
               {t.home.sealCta}
             </Link>
             <Link href="/how-it-works" className="btn-link">
               {t.home.howLink}
             </Link>
           </div>
-          <p className="mt-8 body-sm text-ink-soft">{t.home.freeNote}</p>
+          <p className="mt-6 md:mt-8 body-sm text-ink-soft">{t.home.freeNote}</p>
         </div>
       </div>
       <div className="ink-rule mx-auto max-w-prose" />

@@ -106,7 +106,7 @@ export default function RecoveryHandler({ siteName }: Props) {
     return (
       <div className="w-full max-w-prose">
         <div className="text-center mb-12">
-          <span className="seal-stamp mx-auto mb-6 animate-seal-pulse">tm</span>
+          <span className="seal-stamp mx-auto mb-6">tm</span>
           <h1 className="display-md mb-4">Welcome back.</h1>
           <p className="body-lg text-ink-muted">
             Your recovery key was read from the bookmark URL — nothing was sent to a server.
@@ -173,7 +173,7 @@ export default function RecoveryHandler({ siteName }: Props) {
 function StatusShell({ label }: { label: string }) {
   return (
     <div className="text-center">
-      <span className="seal-stamp mx-auto mb-6 animate-seal-pulse">tm</span>
+      <span className="seal-stamp mx-auto mb-6">tm</span>
       <p className="body-lg text-ink-muted">{label}</p>
     </div>
   );

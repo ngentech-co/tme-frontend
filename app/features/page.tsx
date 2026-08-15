@@ -56,7 +56,7 @@ const FEATURES = [
 
 export default function FeaturesPage() {
   return (
-    <main className="container-page py-24 sm:py-32">
+    <main className="container-page py-12 sm:py-24 md:py-32">
       <div className="max-w-prose mx-auto text-center mb-20">
         <p className="mono mb-6">features</p>
         <h1 className="display-lg mb-8 text-balance">

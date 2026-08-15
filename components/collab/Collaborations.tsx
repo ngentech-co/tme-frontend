@@ -41,7 +41,7 @@ export default function Collaborations() {
   }
 
   return (
-    <main className="min-h-screen px-6 py-12">
+    <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-12">
       <div className="max-w-wide mx-auto">
         <Link href="/inbox" className="mono text-ink-muted hover:text-ink mb-10 inline-block">
           ← inbox

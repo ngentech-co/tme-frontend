@@ -95,7 +95,7 @@ export default function AuthFlow() {
 
       {mode === 'pick' && (
         <div className="space-y-4">
-          <button onClick={() => setMode('email')} className="card-paper w-full p-6 text-left hover:shadow-paper-lg transition-all">
+          <button onClick={() => setMode('email')} className="card-paper w-full p-6 text-left transition-colors">
             <div className="flex items-center justify-between">
               <div>
                 <p className="body font-medium mb-1">✉️ {t.auth.email}</p>
@@ -105,7 +105,7 @@ export default function AuthFlow() {
             </div>
           </button>
 
-          <button onClick={doPasskey} disabled={busy} className="card-paper w-full p-6 text-left hover:shadow-paper-lg transition-all">
+          <button onClick={doPasskey} disabled={busy} className="card-paper w-full p-6 text-left transition-colors">
             <div className="flex items-center justify-between">
               <div>
                 <p className="body font-medium mb-1">🔐 {t.auth.passkey}</p>
@@ -115,7 +115,7 @@ export default function AuthFlow() {
             </div>
           </button>
 
-          <button onClick={doAnonymous} disabled={busy} className="card-paper w-full p-6 text-left hover:shadow-paper-lg transition-all">
+          <button onClick={doAnonymous} disabled={busy} className="card-paper w-full p-6 text-left transition-colors">
             <div className="flex items-center justify-between">
               <div>
                 <p className="body font-medium mb-1">👻 {t.auth.anonymous}</p>

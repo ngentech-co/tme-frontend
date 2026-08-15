@@ -11,7 +11,7 @@ export default function MaintenancePage() {
     <main className="min-h-screen flex items-center justify-center px-6 py-20">
       <div className="max-w-reading text-center">
         <div className="flex justify-center mb-10">
-          <span className="seal-stamp animate-seal-pulse">tm</span>
+          <span className="seal-stamp">tm</span>
         </div>
         <h1 className="display-md mb-6">Be right back.</h1>
         <p className="body-lg text-ink-muted mb-10">

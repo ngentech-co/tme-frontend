@@ -42,7 +42,7 @@ function ExploreInner() {
   }, [query, topic]);
 
   return (
-    <main className="min-h-screen px-6 py-12">
+    <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-12">
       <div className="max-w-wide mx-auto">
         <div className="mb-10">
           <p className="mono mb-3">explore</p>
@@ -94,7 +94,7 @@ function ExploreInner() {
                 <Link
                   key={c.id}
                   href={`/public/?slug=${c.shareSlug}`}
-                  className="card-paper p-7 hover:shadow-paper-lg hover:-translate-y-0.5 transition-all"
+                  className="card-paper p-4 sm:p-7 transition-colors"
                 >
                   <h3 className="heading-md mb-3">{c.title}</h3>
                   <p className="mono text-ink-soft">

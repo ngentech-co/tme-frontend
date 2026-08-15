@@ -13,7 +13,7 @@ export default function AboutPage() {
   return (
     <>
       <JsonLd data={organizationSchema()} />
-      <main className="container-page py-24 sm:py-32">
+      <main className="container-page py-12 sm:py-24 md:py-32">
         <div className="max-w-prose mx-auto">
           <p className="mono mb-6">about</p>
           <h1 className="display-lg mb-10 text-balance">

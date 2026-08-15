@@ -62,7 +62,7 @@ function PublicCapsuleInner() {
   const opened = !!capsule.openedAt;
 
   return (
-    <main className="min-h-screen px-6 py-20">
+    <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-20">
       <div className="max-w-prose mx-auto text-center">
         <span className="seal-stamp mx-auto mb-10 inline-flex">tm</span>
         <p className="mono text-seal mb-6">a sealed capsule</p>

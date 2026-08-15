@@ -33,8 +33,8 @@ export default function PremiumPage() {
     <main className="container-page py-24 sm:py-32">
       <div className="max-w-prose mx-auto">
         <div className="text-center mb-16">
-          <span className="seal-stamp mx-auto mb-8 inline-flex animate-seal-pulse">✦</span>
-          <p className="mono mb-4 text-wax-gold">{t.premium.eyebrow}</p>
+          <span className="seal-stamp mx-auto mb-8 inline-flex">✦</span>
+          <p className="mono mb-4 text-ink-muted">{t.premium.eyebrow}</p>
           <h1 className="display-lg mb-6 text-balance">{t.premium.title}</h1>
           <p className="body-lg text-ink-muted">{t.premium.sub}</p>
         </div>

@@ -47,7 +47,7 @@ export default function BlogPostPage({ params }: Props) {
   if (!Content) notFound();
 
   return (
-    <article className="container-page py-24 sm:py-32">
+    <article className="container-page py-12 sm:py-24 md:py-32">
       <div className="max-w-prose mx-auto">
         <div className="mb-10">
           <Link href="/blog" className="mono text-ink-muted hover:text-ink mb-6 inline-block">

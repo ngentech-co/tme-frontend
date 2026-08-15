@@ -3,6 +3,7 @@ import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth-context';
 import AnalyticsProvider from '@/components/analytics/AnalyticsProvider';
 import ConsentBanner from '@/components/analytics/ConsentBanner';
+import MobileNav from '@/components/layout/MobileNav';
 import { SITE } from '@/lib/constants';
 import './globals.css';
 
@@ -142,7 +143,10 @@ export default function RootLayout({
         </a>
         <div id="main" className="flex-1">
           <AnalyticsProvider />
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <MobileNav />
+          </AuthProvider>
           <ConsentBanner />
         </div>
       </body>

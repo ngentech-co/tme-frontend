@@ -25,9 +25,9 @@ export default function TierCard({ tier, features, tagline, recommended, busy, o
       onClick={onPick}
       disabled={busy}
       className={clsx(
-        'group relative text-left rounded-card p-8 lg:p-10 transition-all duration-300',
+        'group relative text-left rounded-card p-6 md:p-8 lg:p-10 transition-colors duration-300',
         'border bg-paper border-border-subtle',
-        'hover:shadow-paper-lg hover:-translate-y-0.5',
+        'hover:border-ink-muted',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-seal',
         recommended && 'border-seal shadow-paper'
       )}

@@ -74,29 +74,30 @@ export default function SettingsLayout({ current, children }: Props) {
   }
 
   return (
-    <main className="min-h-screen px-6 py-12">
+    <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-12">
       <div className="max-w-wide mx-auto">
-        <div className="grid lg:grid-cols-[260px_1fr] gap-12">
+        <div className="grid lg:grid-cols-[260px_1fr] gap-8 lg:gap-12">
+          {/* Desktop: sidebar nav. Mobile: compact horizontal scroll nav. */}
           <aside>
-            <Link href="/inbox" className="mono text-ink-muted hover:text-ink mb-10 inline-block">
+            <Link href="/inbox" className="mono text-ink-muted hover:text-ink mb-4 lg:mb-10 inline-block">
               ← inbox
             </Link>
-            <p className="mono mb-6">settings</p>
-            <nav className="space-y-1">
+            <p className="mono mb-4 lg:mb-6">settings</p>
+            <nav className="flex lg:flex-col gap-1 overflow-x-auto pb-2 lg:pb-0 lg:space-y-1">
               {SECTIONS.map((s) => {
                 const active = pathname === s.href || (s.id === 'hub' && pathname === '/inbox/settings');
                 return (
                   <Link
                     key={s.id}
                     href={s.href}
-                    className={`block rounded-paper px-4 py-3 transition-colors ${
+                    className={`shrink-0 lg:shrink lg:block rounded-paper px-3 lg:px-4 py-2 lg:py-3 transition-colors ${
                       active
-                        ? 'bg-seal/5 text-ink border-l-2 border-seal'
+                        ? 'bg-seal/5 text-ink lg:border-l-2 border-seal'
                         : 'text-ink-muted hover:bg-cream-deep hover:text-ink'
                     }`}
                   >
-                    <div className="body font-medium">{s.label}</div>
-                    <div className="body-sm text-ink-soft mt-0.5">{s.desc}</div>
+                    <div className="body font-medium text-sm lg:text-base">{s.label}</div>
+                    <div className="hidden lg:block body-sm text-ink-soft mt-0.5">{s.desc}</div>
                   </Link>
                 );
               })}
@@ -114,7 +115,7 @@ export default function SettingsLayout({ current, children }: Props) {
                 </p>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {SECTIONS.filter((s) => s.id !== 'hub').map((s) => (
-                    <Link key={s.id} href={s.href} className="card-paper p-7 hover:shadow-paper-lg hover:-translate-y-0.5 transition-all">
+                    <Link key={s.id} href={s.href} className="card-paper p-7 transition-colors">
                       <h3 className="heading-md mb-2">{s.label}</h3>
                       <p className="body-sm text-ink-muted">{s.desc}</p>
                     </Link>

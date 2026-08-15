@@ -196,9 +196,9 @@ export default function SealWizard() {
 
   if (step === 'done' && sealedId && shareSlug) {
     return (
-      <main className="min-h-screen px-6 py-20">
+      <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-20">
         <div className="max-w-reading mx-auto text-center">
-          <span className="seal-stamp mx-auto mb-10 inline-flex animate-seal-pulse">✓</span>
+          <span className="seal-stamp mx-auto mb-10 inline-flex">✓</span>
           <p className="mono mb-6 text-seal">{t.seal.sealed}</p>
           <h1 className="display-md mb-6">{t.seal.sealedTitle}</h1>
           <p className="body-lg text-ink-muted mb-10">
@@ -276,7 +276,7 @@ export default function SealWizard() {
   }
 
   return (
-    <main className="min-h-screen px-6 py-12 sm:py-16">
+    <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-16">
       <div className="max-w-prose mx-auto">
         <Progress step={step} />
 
@@ -640,7 +640,7 @@ export default function SealWizard() {
 
         {step === 'sealing' && (
           <div className="text-center py-20">
-            <span className="seal-stamp mx-auto mb-10 inline-flex animate-seal-pulse">
+            <span className="seal-stamp mx-auto mb-10 inline-flex">
               tm
             </span>
             <p className="display-sm mb-4">Sealing…</p>
@@ -660,7 +660,7 @@ export default function SealWizard() {
                       </div>
                       <div className="h-1.5 bg-border-subtle rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-seal transition-all duration-150"
+                          className="h-full bg-seal transition-colors duration-150"
                           style={{ width: `${Math.round(p * 100)}%` }}
                         />
                       </div>

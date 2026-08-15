@@ -57,7 +57,7 @@ export default function RevealCeremony({
 
   if (stage === 'revealed' && text !== undefined) {
     return (
-      <main className="min-h-screen px-6 py-12 sm:py-20">
+      <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-12 sm:py-20">
         <div className="max-w-prose mx-auto">
           <div className="text-center mb-10 animate-fade-up">
             <span className="seal-stamp mx-auto mb-6 inline-flex">✓</span>
@@ -147,25 +147,13 @@ export default function RevealCeremony({
       <div className="text-center max-w-reading">
         <div className="mb-12">
           {stage === 'sealing' && (
-            <span className="seal-stamp mx-auto inline-flex animate-seal-pulse">tm</span>
+            <span className="seal-stamp mx-auto inline-flex">tm</span>
           )}
           {stage === 'breaking' && (
-            <span
-              className="seal-stamp mx-auto inline-flex"
-              style={{ animation: 'seal-break 0.8s ease-out forwards' }}
-            >
-              tm
-            </span>
+            <span className="seal-stamp mx-auto inline-flex animate-fade-in">tm</span>
           )}
           {stage === 'unfolding' && (
-            <span
-              className="seal-stamp mx-auto inline-flex opacity-0"
-              style={{
-                animation: 'fade-in 0.9s ease-out forwards',
-              }}
-            >
-              ✓
-            </span>
+            <span className="seal-stamp mx-auto inline-flex animate-fade-in">✓</span>
           )}
         </div>
 

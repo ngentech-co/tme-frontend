@@ -137,7 +137,7 @@ function CapsuleDetailInner() {
   const opened = !!capsule.openedAt;
 
   return (
-    <main className="min-h-screen px-6 py-12 sm:py-16">
+    <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-16">
       <div className="max-w-prose mx-auto">
         <Link
           href="/inbox"
