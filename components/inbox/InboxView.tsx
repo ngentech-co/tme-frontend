@@ -79,7 +79,7 @@ export default function InboxView() {
               + Seal
             </Link>
             <Link
-              href={`${prefix}/inbox/settings`}
+              href={`${prefix}/settings`}
               className="btn-ghost !py-2 !px-3 !text-sm"
               aria-label={t.nav.settings}
             >
@@ -114,7 +114,7 @@ export default function InboxView() {
             <Link href={`${prefix}/inbox/collaborations`} className="btn-ghost">
               {t.nav.collaborations}
             </Link>
-            <Link href={`${prefix}/inbox/settings`} className="btn-link">
+            <Link href={`${prefix}/settings`} className="btn-link">
               {t.nav.settings}
             </Link>
             <LanguageSwitcher />

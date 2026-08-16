@@ -30,7 +30,7 @@ export default function CookiesPage() {
           <p>
             If you opt in, Google Analytics 4 sets cookies for measurement. Default
             is denied (consent mode v2). You can change this in{' '}
-            <a href="/inbox/settings/privacy" className="underline decoration-seal/30 underline-offset-4 hover:decoration-seal">
+            <a href="/settings/privacy" className="underline decoration-seal/30 underline-offset-4 hover:decoration-seal">
               Settings → Privacy
             </a>.
           </p>

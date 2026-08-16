@@ -51,7 +51,7 @@ export default function PeopleDirectory() {
               Following is an email-tier feature. Switch tiers in Settings to
               follow people.
             </p>
-            <Link href="/inbox/settings/account" className="btn-primary">
+            <Link href="/settings/account" className="btn-primary">
               Manage account
             </Link>
           </div>

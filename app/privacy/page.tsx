@@ -64,7 +64,7 @@ export default function PrivacyPage() {
           <h2 className="display-sm mb-4 mt-12">Data export & deletion</h2>
           <p>
             Export everything (decrypted or encrypted bundles) from{' '}
-            <a href="/inbox/settings/data" className="underline decoration-seal/30 underline-offset-4 hover:decoration-seal">
+            <a href="/settings/data" className="underline decoration-seal/30 underline-offset-4 hover:decoration-seal">
               Settings → Data
             </a>. Delete your account any time; we retain a tombstone for 30
             days in case you change your mind, then purge everything.
